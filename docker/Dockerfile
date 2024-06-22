@@ -11,10 +11,10 @@ COPY Pipfile Pipfile.lock ./
 
 RUN pipenv install --deploy --ignore-pipfile
 
-RUN pipenv run pip install jupyter
+RUN pipenv run pip install jupyterlab jupyterhub
 
 COPY . .
 
-EXPOSE 8888
+EXPOSE 8888 8000
 
-CMD ["pipenv", "run", "jupyter", "notebook", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+CMD ["pipenv", "run", "jupyterhub"]
