@@ -2,10 +2,12 @@
 __pycache__
 *.pyc
 *.pyo
+*.pyd
 
 # Ignore virtual environments
 venv/
 .env/
+env
 
 # Ignore Docker-related files
 Dockerfile
@@ -16,3 +18,14 @@ docker-compose.yml
 .gitignore
 .idea
 .vscode
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+*.cover
+*.log
+.mypy_cache
+.pytest_cache
+.hypothesis
