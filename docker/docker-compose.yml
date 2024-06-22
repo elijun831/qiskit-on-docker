@@ -1,12 +1,13 @@
 version: '3.8'
 
 services:
-  jupyter:
+  jupyterlab:
     build: .
     ports:
       - "8888:8888"
     volumes:
-      - .:/app
+      - ./notebooks:/app/notebooks
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
+    command: ["pipenv", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--notebook-dir=/app/notebooks"]
