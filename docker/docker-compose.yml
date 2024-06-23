@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  web:
+    build: ./
+    image: elijun831/qiskit-on-docker:1.0.0
+    networks:
+      - mynetwork
+    volumes:
+      - /notebooks:/notebooks  # Adjust as needed
+  
   jupyterlab:
     build: .
     ports:
