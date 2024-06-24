@@ -1,20 +1,44 @@
-FROM python:3.11-bookworm
+# The builder image, used to build the virtual environment
+FROM python:3.11-bookworm as builder
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+# Install poetry
+RUN pip install poetry==1.4.2
 
-RUN pip install --no-cache-dir pipenv
+# Environment variables for poetry
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /app
 
-COPY Pipfile Pipfile.lock ./
+# Copy pyproject.toml and poetry.lock files
+COPY pyproject.toml poetry.lock ./
+RUN touch README.md
 
-RUN pipenv install --deploy --ignore-pipfile
+# Install dependencies without dev dependencies and clear cache
+RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
-RUN pipenv run pip install jupyterlab
+# The runtime image, used to just run the code provided its virtual environment
+FROM python:3.11-slim-bookworm as runtime
 
+# Environment variables for virtual environment
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the project files
 COPY . .
 
+# Expose the port for JupyterLab
 EXPOSE 8888
 
-CMD ["pipenv", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+# Run JupyterLab
+CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
