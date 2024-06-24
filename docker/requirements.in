@@ -4,7 +4,7 @@ qiskit[visualization]
 azure-quantum
 azure-quantum[qiskit]
 qsharp
-qiskit_braket_provider
+qiskit-braket-provider
 amazon-braket-algorithm-library
 amazon-braket-sdk
 qiskit-ionq
