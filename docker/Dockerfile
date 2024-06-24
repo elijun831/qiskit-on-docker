@@ -2,7 +2,7 @@
 FROM python:3.11-bookworm as builder
 
 # Install poetry
-RUN pip install poetry==1.4.2
+RUN pip install poetry==1.8.3
 
 # Environment variables for poetry
 ENV POETRY_NO_INTERACTION=1 \
