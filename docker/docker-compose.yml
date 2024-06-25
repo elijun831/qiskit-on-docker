@@ -11,7 +11,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
-    command: ["pipenv", "run", "python", "app.py"]  
+    command: ["poetry", "run", "python", "app.py"]
 
   jupyterlab:
     build: .
