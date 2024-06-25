@@ -17,7 +17,7 @@ COPY pyproject.toml poetry.lock ./
 RUN touch README.md
 
 # Install dependencies without dev dependencies and clear cache
-RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-slim-bookworm as runtime
@@ -36,6 +36,9 @@ WORKDIR /app
 
 # Copy the project files
 COPY . .
+
+# Ensure poetry is installed in the virtual environment
+RUN .venv/bin/pip install poetry==1.8.3
 
 # Expose the port for JupyterLab
 EXPOSE 8888
