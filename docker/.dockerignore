@@ -1,8 +1,8 @@
 # Ignore Python bytecode files
-__pycache__
-*.pyc
-*.pyo
-*.pyd
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
 
 # Ignore virtual environments
 venv/
@@ -29,3 +29,19 @@ pip-delete-this-directory.txt
 .mypy_cache
 .pytest_cache
 .hypothesis
+Thumbs.db
+
+# Ignore Jupyter notebook checkpoints
+**/.ipynb_checkpoints
+
+# Ignore Python virtual environment - Essential for efficient build contexts
+venv/
+
+# Include essential build files - Ensures successful builds
+!Dockerfile
+
+# Assuming your source code is in '/app', adjust if necessary
+!app/
+
+# Include the notebooks directory - Your core workspace!
+!notebooks/  
