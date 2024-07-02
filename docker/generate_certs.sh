@@ -3,6 +3,10 @@
 # Set working directory within the script
 cd /etc/nginx/certs
 
+# Root CA certificate generation
+openssl genrsa -out Root_CA.key 2048
+openssl req -x509 -new -nodes -key Root_CA.key -sha256 -days 365 -out Root_CA.pem -subj "/C=US/ST=Massachusetts/L=Boston/CN=EliJun"
+
 # Certificate Generation Logic
 openssl genrsa -out _wildcard.qiskitondocker.dev+3-key.pem 2048 && \
 openssl req -new -key _wildcard.qiskitondocker.dev+3-key.pem -out _wildcard.qiskitondocker.dev+3.csr -subj "/CN=*.qiskitondocker.dev" -config <( \
