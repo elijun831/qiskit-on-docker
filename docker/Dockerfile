@@ -28,6 +28,36 @@ RUN touch README.md
 # Install dependencies without dev dependencies and clear cache
 RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
+# Copy pre-configured Jupyter Notebook config
+COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
+
+# Generate and Jupyter Notebook config
+RUN . /venv/bin/activate && jupyter lab --generate-config -y \
+    && mkdir -p /home/appuser/.jupyter && echo "c.NotebookApp.token = ''" >> /home/appuser/.jupyter/jupyter_lab_config.py
+
+# Create a directory to store the certificates
+RUN mkdir -p /etc/nginx/certs
+
+# OpenSSL certificate & dhparam generation script
+WORKDIR /etc/nginx/certs  # Set the working directory for the commands
+
+# Create the certificates directory if it doesn't exist
+RUN mkdir -p /etc/nginx/certs
+
+# Copy the script into the image
+COPY generate_certs.sh /etc/nginx/certs/generate_certs.sh
+
+# Make the script executable
+RUN chmod +x /etc/nginx/certs/generate_certs.sh
+
+# Execute the script
+RUN /etc/nginx/certs/generate_certs.sh
+
+# Create Nginx user and group 
+RUN groupadd -r nginx && useradd -r -g nginx nginx
+
+# ----------------------------------------------
+
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-bookworm as runtime
 
@@ -61,6 +91,21 @@ COPY jupyter_lab_config.py ./
 
 # Copy Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/jupyter.conf
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+# Set up work directory
+WORKDIR /app
+
+# Create a directory for notebooks
+RUN mkdir -p /notebooks
+
+# Specify the directory as a volume
+VOLUME /notebooks
+
+# Create non-root user for security
+RUN adduser -u 5678 --disabled-password --gecos "" appuser
 
 # Change ownership of the application files
 RUN chown -R appuser:appuser /app
@@ -75,5 +120,9 @@ EXPOSE 8080
 EXPOSE 443
 EXPOSE 80
 
-# Run JupyterLab through Nginx
-CMD service nginx start && poetry run jupyter lab --ip=0.0.0.0 --no-browser --allow-root
+# Change permissions of the directories to ensure appuser can write to them
+RUN chmod -R 755 /app && chmod -R 755 /notebooks
+RUN chmod +x /start.sh
+
+# Start JupyterLab
+ENTRYPOINT ["/bin/bash", "/start.sh"]
