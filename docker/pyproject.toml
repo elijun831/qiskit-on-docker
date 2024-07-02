@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "qiskit-packages"
+version = "1.0.0"
+description = "Qiskit-related PyPI packages"
+authors = ["Eli Jun <elijun831@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+matplotlib-inline = ">=0.1.0,<3.9.0"
+pyzmq = "*"
+qiskit = {extras = ["visualization"], version = "*"}
+qiskit-ibm-runtime = "*"
+azure-quantum = {extras = ["qiskit"], version = "*"}
+qsharp = "*"
+qiskit_braket_provider = "*"
+amazon-braket-algorithm-library = "*"
+amazon-braket-sdk = "*"
+qiskit-ionq = "*"
+qiskit-aqt-provider = "*"
+qiskit-alice-bob-provider = "*"
+qiskit-qulacs = "*"
+qiskit-rigetti = "*"
+qiskit-scaleway = "*"
+qiskit-superstaq = "*"
+qiskit-machine-learning = "*"
+qiskit-nature = "*"
+qiskit-finance = "*"
+qiskit-optimization = "*"
+qiskit-dynamics = "*"
+qiskit-algorithms = "*"
+qiskit-nature-pyscf = "*"
+qiskit-aer = "*"
+openqasm3 = "*"
+PennyLane-qiskit = "*"
+qiskit-experiments = "*"
+qiskit-symb = "*"
+jupyterlab = "*"
+mitiq = "*"
+qupython = "*"
+dynacir = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
