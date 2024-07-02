@@ -21,6 +21,7 @@ ENV POETRY_NO_INTERACTION=1 \
 
 WORKDIR /app
 
+# ---------- Poetry installation
 # Copy pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock ./
 RUN touch README.md
@@ -35,6 +36,7 @@ COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 RUN . /venv/bin/activate && jupyter lab --generate-config -y \
     && mkdir -p /home/appuser/.jupyter && echo "c.NotebookApp.token = ''" >> /home/appuser/.jupyter/jupyter_lab_config.py
 
+# ---------- OpenSSL Certificate setup
 # Create a directory to store the certificates
 RUN mkdir -p /etc/nginx/certs
 
@@ -56,8 +58,11 @@ RUN /etc/nginx/certs/generate_certs.sh
 # Create Nginx user and group 
 RUN groupadd -r nginx && useradd -r -g nginx nginx
 
-# ----------------------------------------------
+# Setting permissions and ownership
+RUN chown nginx:nginx /etc/nginx/certs/*.pem && \
+    chmod 600 /etc/nginx/certs/*.pem
 
+# ---------- Nginx installation and setup
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-bookworm as runtime
 
@@ -89,12 +94,16 @@ RUN .venv/bin/pip install --no-cache-dir poetry==1.8.3
 # Copy Jupyter configuration file
 COPY jupyter_lab_config.py ./
 
+# Remove default Nginx configuration
+RUN rm /etc/nginx/sites-enabled/default
+
 # Copy Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx.conf /etc/nginx/conf.d/jupyter.conf
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
+# ---------- Setting up directories, expose the ports, and start the JupyterLab
 # Set up work directory
 WORKDIR /app
 
@@ -111,7 +120,7 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser
 RUN chown -R appuser:appuser /app
 
 # Switch to the non-root user
-USER appuser
+USER appuser 
 
 # Expose the ports for Nginx and JupyterLab
 EXPOSE 8888
