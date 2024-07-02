@@ -19,8 +19,6 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_CREATE=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
-WORKDIR /app
-
 # ---------- Poetry installation
 # Copy pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock ./
