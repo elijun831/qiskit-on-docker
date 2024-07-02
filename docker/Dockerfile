@@ -20,7 +20,7 @@ RUN touch README.md
 RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 # The runtime image, used to just run the code provided its virtual environment
-FROM python:3.11-bookworm as runtime
+FROM python:3.11-slim-bookworm as runtime
 
 # Environment variables for virtual environment
 ENV VIRTUAL_ENV=/app/.venv \
