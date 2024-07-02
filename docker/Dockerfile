@@ -69,8 +69,11 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Expose the ports for Nginx and JupyterLab
-EXPOSE 80
+EXPOSE 8888
+EXPOSE 5678
+EXPOSE 8080
 EXPOSE 443
+EXPOSE 80
 
 # Run JupyterLab through Nginx
 CMD service nginx start && poetry run jupyter lab --ip=0.0.0.0 --no-browser --allow-root
