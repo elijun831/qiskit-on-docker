@@ -10,7 +10,7 @@ echo "[INFO] Activating Python virtual environment..."
 
 # ================ Start JupyterLab ================
 echo "[INFO] Starting JupyterLab..."
-poetry run jupyter lab --ip=0.0.0.0 --port=443 --no-browser --allow-root --NotebookApp.port_retries=0 --NotebookApp.allow_origin='*'
+poetry run jupyter lab --ip=0.0.0.0 --port=8443 --no-browser --allow-root --NotebookApp.port_retries=0 --NotebookApp.allow_origin='*'
 
 # ================ Main Execution Loop ================
 echo "[INFO] Container startup complete. Ready to serve requests."
