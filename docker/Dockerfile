@@ -30,11 +30,6 @@ RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 # Copy pre-configured Jupyter Notebook config
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
-# Generate and Jupyter Notebook config
-RUN . /app/.venv/bin/activate && jupyter lab --generate-config -y && \
-    mkdir -p /home/appuser/.jupyter && \
-    echo "c.NotebookApp.token = ''" >> /home/appuser/.jupyter/jupyter_lab_config.py
-
 # ---------- OpenSSL Certificate setup
 # Create a directory to store the certificates
 RUN mkdir -p /etc/nginx/certs
