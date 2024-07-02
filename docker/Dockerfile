@@ -77,7 +77,7 @@ WORKDIR /app
 COPY . .
 
 # Ensure poetry is installed in the virtual environment
-RUN .venv/bin/pip install --no-cache-dir poetry==1.8.3
+RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 # Copy Jupyter configuration file
 COPY jupyter_lab_config.py ./
