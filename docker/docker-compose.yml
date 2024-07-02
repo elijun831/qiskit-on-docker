@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     image: elijun831/qiskit-on-docker:1.0.0
     networks:
       - mynetwork
@@ -14,15 +16,30 @@ services:
     command: ["poetry", "run", "python", "app.py"]
 
   jupyterlab:
-    build: .
+    image: elijun831/qiskit-on-docker:1.0.0  # Use the same image as the 'web' service
     ports:
       - "8888:8888"
+    networks:
+      - mynetwork
     volumes:
       - ./notebooks:/app/notebooks  # Adjust the host path as needed
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
-    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--notebook-dir=/app/notebooks"]
+    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--port=8888", "--NotebookApp.port_retries=0", "--NotebookApp.allow_origin='*'"]
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "443:443"
+    networks:
+      - mynetwork
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  
+      - ./certs:/etc/nginx/certs  
+    depends_on:
+      - jupyterlab  # Ensure that Nginx starts after JupyterLab
+    command: ["/bin/sh", "-c", "exec nginx -g 'daemon off;'"]
 
 networks:
   mynetwork:
