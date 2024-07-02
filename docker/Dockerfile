@@ -22,6 +22,9 @@ RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-slim-bookworm as runtime
 
+# Install nginx
+RUN apt-get update && apt-get install -y nginx && apt-get clean
+
 # Create a non-root user and group
 RUN groupadd --gid 1000 appuser && \
     useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser
@@ -47,14 +50,18 @@ RUN .venv/bin/pip install --no-cache-dir poetry==1.8.3
 # Copy Jupyter configuration file
 COPY jupyter_lab_config.py ./
 
+# Copy Nginx configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Change ownership of the application files
 RUN chown -R appuser:appuser /app
 
 # Switch to the non-root user
 USER appuser
 
-# Expose the port for JupyterLab
-EXPOSE 8888
+# Expose the ports for Nginx and JupyterLab
+EXPOSE 80
+EXPOSE 443
 
-# Run JupyterLab
-CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+# Run JupyterLab through Nginx
+CMD service nginx start && poetry run jupyter lab --ip=0.0.0.0 --no-browser --allow-root
