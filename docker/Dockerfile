@@ -117,9 +117,5 @@ EXPOSE 8080
 EXPOSE 443
 EXPOSE 80
 
-# Change permissions of the directories to ensure appuser can write to them
-RUN chmod -R 755 /app && chmod -R 755 /notebooks
-RUN chmod +x /start.sh
-
 # Start JupyterLab
 ENTRYPOINT ["/bin/bash", "/start.sh"]
