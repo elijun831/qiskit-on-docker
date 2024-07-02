@@ -1,5 +1,14 @@
 # The builder image, used to build the virtual environment
-FROM python:3.11-slim-bookworm as builder
+FROM python:3.11-bookworm as builder
+
+# Copy custom hosts file to /etc/hosts
+COPY hosts /etc/hosts
+
+# Set environment variables
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONFAULTHANDLER 1
 
 # Install poetry
 RUN pip install --no-cache-dir poetry==1.8.3
@@ -20,7 +29,7 @@ RUN touch README.md
 RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 # The runtime image, used to just run the code provided its virtual environment
-FROM python:3.11-slim-bookworm as runtime
+FROM python:3.11-bookworm as runtime
 
 # Install nginx
 RUN apt-get update && apt-get install -y nginx && apt-get clean
