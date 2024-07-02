@@ -67,12 +67,6 @@ RUN apt-get update && apt-get install -y nginx && apt-get clean
 RUN groupadd --gid 1000 appuser && \
     useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser
 
-# Environment variables for virtual environment
-ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
 # Copy the virtual environment from the builder stage
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
