@@ -1,32 +1,24 @@
 services:
   web:
-    build:
-      context: .
-      target: runtime
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONDONTWRITEBYTECODE=1
+    build: ./
     image: elijun831/qiskit-on-docker:1.0.0
     networks:
       - mynetwork
     volumes:
-      - /notebooks:/app/notebooks  # Adjust the host path as needed
+      - /notebooks:/notebooks
 
-  jupyterlab:
+  qiskitondocker:
     build:
       context: .
-      target: runtime
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONDONTWRITEBYTECODE=1
-    networks:
-      - mynetwork
+      dockerfile: Dockerfile
     ports:
       - "8888:8888"
       - "5678:5678"
       - "8443:443"
     volumes:
-      - ./notebooks:/app/notebooks  # Adjust the host path as needed
+      - /notebooks:/notebooks
+    networks:
+      - mynetwork
 
   nginx:
     image: nginx:latest
@@ -36,12 +28,17 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    environment:
+      - NGX_HTTP_PORT=80
+      - NGX_HTTPS_PORT=443
+      - JUPYTER_HOST=web  # Or internal IP of 'web' service 
+      - JUPYTER_PORT=8888
     networks:
       - mynetwork
     depends_on:
-      - web
+      - qiskitondocker
     links:
-      - web
+      - qiskitondocker
 
 networks:
   mynetwork:
