@@ -66,14 +66,11 @@ COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # ---------- OpenSSL Certificate setup
-# Create a directory to store the certificates
+# Create the certificates directory if it doesn't exist
 RUN mkdir -p /etc/nginx/certs
 
 # OpenSSL certificate & dhparam generation script
 WORKDIR /etc/nginx/certs  # Set the working directory for the commands
-
-# Create the certificates directory if it doesn't exist
-RUN mkdir -p /etc/nginx/certs
 
 # Copy the script into the image
 COPY generate_certs.sh /etc/nginx/certs/generate_certs.sh
