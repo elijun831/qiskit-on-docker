@@ -65,11 +65,11 @@ COPY nginx.conf /etc/nginx/conf.d/jupyter.conf
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# ---------- OpenSSL Certificate setup
+# ---------- mkcert Certificate setup
 # Create the certificates directory if it doesn't exist
 RUN mkdir -p /etc/nginx/certs
 
-# OpenSSL certificate & dhparam generation script
+# mkcert certificate generation script
 WORKDIR /etc/nginx/certs  # Set the working directory for the commands
 
 # Copy the script into the image
