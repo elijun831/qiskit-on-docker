@@ -3,7 +3,7 @@ FROM python:3.11-bookworm as builder
 
 # Create a non-root user and group
 RUN groupadd --gid 1000 appuser && \
-    useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser
+    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home appuser
 
 # Copy custom hosts file to /etc/hosts
 COPY hosts /etc/hosts
@@ -40,6 +40,9 @@ FROM python:3.11-bookworm as runtime
 # Create Nginx user and group
 RUN groupadd -r nginx && useradd -r -g nginx nginx
 
+# Debug: List users and groups to check nginx user and group
+RUN getent passwd nginx && getent group nginx
+
 # Install nginx, mkcert, and gettext-base for envsubst
 RUN apt-get update && apt-get install -y libnss3-tools nginx gettext-base && apt-get clean && \
     curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64 -o /usr/local/bin/mkcert && \
@@ -58,7 +61,7 @@ RUN mkcert -cert-file /etc/nginx/certs/_wildcard.qiskitondocker.dev+3.pem -key-f
 RUN openssl dhparam -out /etc/nginx/certs/dhparam.pem 2048
 
 # Set permissions and ownership for certificates
-RUN chown nginx:nginx /etc/nginx/certs/*.pem && \
+RUN chown -R nginx:nginx /etc/nginx/certs/*.pem && \
     chmod 666 /etc/nginx/certs/*.pem
 
 # Copy the virtual environment from the builder stage
