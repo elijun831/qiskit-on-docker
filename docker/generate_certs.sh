@@ -3,26 +3,19 @@
 # Set working directory within the script
 cd /etc/nginx/certs
 
-# Root CA certificate generation
-openssl genrsa -out Root_CA.key 2048
-openssl req -x509 -new -nodes -key Root_CA.key -sha256 -days 365 -out Root_CA.pem -subj "/C=US/ST=Massachusetts/L=Boston/CN=EliJun"
+# Install mkcert and generate the local CA
+mkcert -install
 
-# Certificate Generation Logic
-openssl genrsa -out _wildcard.qiskitondocker.dev+3-key.pem 2048 && \
-openssl req -new -key _wildcard.qiskitondocker.dev+3-key.pem -out _wildcard.qiskitondocker.dev+3.csr -subj "/CN=*.qiskitondocker.dev" -config <( \
-cat <<-EOF \
-[req]
-default_bits = 2048
-prompt = no
-default_md = sha256
-distinguished_name = dn
+# Generate the wildcard certificate using mkcert
+mkcert -cert-file _wildcard.qiskitondocker.dev+3.pem -key-file _wildcard.qiskitondocker.dev+3-key.pem "*.qiskitondocker.dev" localhost 127.0.0.1 ::1
 
-[dn]
-CN = *.qiskitondocker.dev 
+# Generate the DH parameters file if it doesn't exist
+if [ ! -f "dhparam.pem" ]; then
+    echo "[INFO] Generating DH parameters..."
+    openssl dhparam -out dhparam.pem 2048
+fi
 
-[SAN]
-subjectAltName = DNS:*.qiskitondocker.dev, DNS:localhost, IP:127.0.0.1, IP:::1
-EOF
-) && \
-openssl x509 -req -days 365 -in _wildcard.qiskitondocker.dev+3.csr -signkey _wildcard.qiskitondocker.dev+3-key.pem -out _wildcard.qiskitondocker.dev+3.pem && \
-openssl dhparam -out dhparam.pem 2048
+# Set permissions and ownership for certificates
+echo "[INFO] Setting permissions and ownership for certificates..."
+chown nginx:nginx /etc/nginx/certs/*.pem
+chmod 600 /etc/nginx/certs/*.pem
