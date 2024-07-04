@@ -19,7 +19,7 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_CREATE=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
-# ---------- Poetry installation
+# ---------- Poetry installation ----------
 # Copy pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock ./
 RUN touch README.md
@@ -30,7 +30,27 @@ RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 # Copy pre-configured Jupyter Notebook config
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
-# ---------- Nginx installation and setup
+# ---------- mkcert Certificate setup ----------
+# Create the certificates directory if it doesn't exist
+RUN mkdir -p /etc/nginx/certs
+
+# Copy the script into the image
+COPY generate_certs.sh /etc/nginx/certs/generate_certs.sh
+
+# Make the script executable
+RUN chmod +x /etc/nginx/certs/generate_certs.sh
+
+# Execute the script
+RUN /etc/nginx/certs/generate_certs.sh
+
+# Create Nginx user and group 
+RUN groupadd -r nginx && useradd -r -g nginx nginx
+
+# Setting permissions and ownership
+RUN chown nginx:nginx /etc/nginx/certs/*.pem && \
+    chmod 600 /etc/nginx/certs/*.pem
+
+# ---------- Nginx installation and setup ----------
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-bookworm as runtime
 
@@ -65,30 +85,7 @@ COPY nginx.conf /etc/nginx/conf.d/jupyter.conf
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# ---------- mkcert Certificate setup
-# Create the certificates directory if it doesn't exist
-RUN mkdir -p /etc/nginx/certs
-
-# mkcert certificate generation script
-WORKDIR /etc/nginx/certs  # Set the working directory for the commands
-
-# Copy the script into the image
-COPY generate_certs.sh /etc/nginx/certs/generate_certs.sh
-
-# Make the script executable
-RUN chmod +x /etc/nginx/certs/generate_certs.sh
-
-# Execute the script
-RUN /etc/nginx/certs/generate_certs.sh
-
-# Create Nginx user and group 
-RUN groupadd -r nginx && useradd -r -g nginx nginx
-
-# Setting permissions and ownership
-RUN chown nginx:nginx /etc/nginx/certs/*.pem && \
-    chmod 600 /etc/nginx/certs/*.pem
-
-# ---------- Setting up directories, expose the ports, and start the JupyterLab
+# ---------- Setting up directories, expose the ports, and start the JupyterLab ----------
 # Set up work directory
 WORKDIR /app
 
