@@ -1,50 +1,39 @@
-# The builder image, used to build the virtual environment
-FROM python:3.11-bookworm as builder
+FROM python:3.11-bookworm
 
 # Create a non-root user and group
 RUN groupadd --gid 1000 appuser && \
-    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home appuser
-
-# Copy custom hosts file to /etc/hosts
-COPY hosts /etc/hosts
+    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home --no-log-init appuser
 
 # Set environment variables
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONFAULTHANDLER 1
+ENV LANG C.UTF-8 \
+    LC_ALL C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_CACHE_DIR='/var/cache/pypoetry' \
+    POETRY_HOME='/usr/local' \
+    POETRY_VERSION=1.8.3
 
-# Install poetry
-RUN pip install --no-cache-dir poetry==1.8.3
+# Install curl and Poetry
+RUN apt-get update && apt-get install -y curl && \
+    curl -sSL https://install.python-poetry.org | python3 -
 
-# Environment variables for poetry
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-
-# ---------- Poetry installation
 # Copy pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock ./
-RUN touch README.md
 
-# Install dependencies without dev dependencies and clear cache
-RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
+# Install JupyterLab globally
+RUN pip install jupyterlab notebook voila
 
 # Copy pre-configured Jupyter Notebook config
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
-# The runtime image, used to just run the code provided its virtual environment
-FROM python:3.11-bookworm as runtime
-
-# Create Nginx user and group
-RUN groupadd -r nginx && useradd -r -g nginx nginx
-
-# Debug: List users and groups to check nginx user and group
-RUN getent passwd nginx && getent group nginx
-
 # Install nginx, mkcert, and gettext-base for envsubst
-RUN apt-get update && apt-get install -y libnss3-tools nginx gettext-base && apt-get clean && \
+RUN apt-get install -y libnss3-tools nginx gettext-base && apt-get clean && \
     curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64 -o /usr/local/bin/mkcert && \
     chmod +x /usr/local/bin/mkcert
 
@@ -60,65 +49,41 @@ RUN mkcert -cert-file /etc/nginx/certs/_wildcard.qiskitondocker.dev+3.pem -key-f
 # Generate the DH parameters file if it doesn't exist
 RUN openssl dhparam -out /etc/nginx/certs/dhparam.pem 2048
 
-# Set permissions and ownership for certificates
-RUN chown -R nginx:nginx /etc/nginx/certs/*.pem && \
-    chmod 666 /etc/nginx/certs/*.pem
-
-# Copy the virtual environment from the builder stage
-COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-
 # Set the working directory
 WORKDIR /app
 
 # Copy the project files
 COPY . .
 
-# Set permissions on the start script
-COPY start.sh /start.sh
-
-# Set execute permissions for start.sh and ensure it runs as root
-RUN chmod +x /start.sh && \
-    chown root:root /start.sh
-
-# Switch to non-root user for security reasons
-USER appuser
-
-# Ensure poetry is installed in the virtual environment
-RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
-
-# Copy Jupyter configuration file
-COPY jupyter_lab_config.py ./
+# Set permissions for Nginx configuration and logs
+USER root
+RUN chown -R root:root /etc/nginx && \
+    chown -R root:root /var/log/nginx && \
+    chmod -R 755 /var/log/nginx
 
 # Remove default Nginx configuration
-USER root
 RUN rm /etc/nginx/sites-enabled/default
 
-# Copy Nginx configuration file
-USER root
-COPY nginx.conf /etc/nginx/nginx.conf.template
+# Copy Nginx configuration file template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
-# ---------- Setting up directories, expose the ports, and start the JupyterLab
-# Set up work directory
-WORKDIR /app
+# Replace environment variables in the nginx.conf template and move to the correct location
+RUN envsubst '\$STATIC_DIR' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
 # Create a directory for notebooks
+USER root
 RUN mkdir -p /notebooks
 
 # Specify the directory as a volume
 VOLUME /notebooks
 
 # Change ownership of the application files
+USER root
 RUN chown -R appuser:appuser /app
 
-# Switch to the non-root user
-USER appuser
-
 # Expose the ports for Nginx and JupyterLab
-EXPOSE 8888
-EXPOSE 5678
-EXPOSE 8443
-EXPOSE 443
-EXPOSE 80
+EXPOSE 8888 5678 8443 443 80
 
-# Start JupyterLab
-ENTRYPOINT ["/bin/bash", "/start.sh"]
+# Start Nginx and JupyterLab
+CMD /bin/bash -c "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;' & \
+    jupyter lab --ip=0.0.0.0 --no-browser --allow-root --notebook-dir=/notebooks"
