@@ -19,6 +19,7 @@ services:
       - "8888:8888"
     volumes:
       - ./notebooks:/app/notebooks  # Adjust the host path as needed
+      - ./data:/home/appuser/data
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
