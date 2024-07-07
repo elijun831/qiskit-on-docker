@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "qiskit-packages"
 version = "1.0.0"
-description = "Qiskit-related PyPI packages"
+description = "Qiskit and quantum computing-related PyPI packages"
 authors = ["Eli Jun"]
 readme = "README.md"
 
