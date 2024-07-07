@@ -2,7 +2,7 @@
 name = "qiskit-packages"
 version = "1.0.0"
 description = "Qiskit-related PyPI packages"
-authors = ["Eli Jun <elijun831@gmail.com>"]
+authors = ["Eli Jun"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
