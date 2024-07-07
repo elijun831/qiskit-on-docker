@@ -14,21 +14,39 @@ ENV LANG=C.UTF-8 \
     POETRY_HOME='/usr/local' \
     POETRY_VERSION=1.8.3
 
+# Install required packages and Poetry
 RUN apt-get update && apt-get install -y curl openssl && \
     curl -sSL https://install.python-poetry.org | python3 -
 
+# Set working directory
+WORKDIR /app
+
+# Copy project files
 COPY pyproject.toml poetry.lock ./
 
+# Install dependencies
 RUN poetry install --no-root
 
-RUN mkdir -p /root/.jupyter
+# Create a non-root user and necessary directories
+RUN useradd -ms /bin/bash appuser && \
+    mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert
 
-RUN openssl genrsa -out /root/.jupyter/localhost.key 2048 && \
-    openssl req -new -key /root/.jupyter/localhost.key -out /root/.jupyter/localhost.csr -subj "/CN=localhost" && \
-    openssl x509 -req -days 365 -in /root/.jupyter/localhost.csr -signkey /root/.jupyter/localhost.key -out /root/.jupyter/localhost.pem
+# Generate SSL certificate
+RUN openssl genrsa -out /home/appuser/ssl_cert/localhost.key 2048 && \
+    openssl req -new -key /home/appuser/ssl_cert/localhost.key -out /home/appuser/ssl_cert/localhost.csr -subj "/CN=localhost" && \
+    openssl x509 -req -days 365 -in /home/appuser/ssl_cert/localhost.csr -signkey /home/appuser/ssl_cert/localhost.key -out /home/appuser/ssl_cert/localhost.pem
 
-COPY jupyter_lab_config.py /root/.jupyter/jupyter_lab_config.py
+# Copy JupyterLab config file
+COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
+# Change ownership of directories
+RUN chown -R appuser:appuser /home/appuser/.jupyter /home/appuser/ssl_cert
+
+# Switch to non-root user
+USER appuser
+
+# Expose port for JupyterLab
 EXPOSE 8888
 
-CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
+# Command to run JupyterLab
+CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--notebook-dir=/app/notebooks"]
