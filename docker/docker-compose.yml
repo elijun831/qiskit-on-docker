@@ -1,30 +1,19 @@
-version: '3.8'
-
 services:
-  web:
-    build: .
-    image: elijun831/qiskit-on-docker:1.0.0
-    networks:
-      - mynetwork
-    volumes:
-      - /notebooks:/app/notebooks  # Adjust the host path as needed
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONDONTWRITEBYTECODE=1
-    command: ["poetry", "run", "python", "app.py"]
-
   jupyterlab:
     build: .
+    image: elijun831/qiskit-on-docker:1.0.0
     ports:
       - "8888:8888"
     volumes:
-      - ./notebooks:/app/notebooks  # Adjust the host path as needed
+      - ./notebooks:/app/notebooks
       - ./data:/home/appuser/data
+      - .:/app
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
-    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--notebook-dir=/app/notebooks"]
+      - JUPYTER_ENABLE_LAB=yes
+    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--notebook-dir=/app/notebooks"]
 
-networks:
-  mynetwork:
-    driver: bridge
+# networks:
+#   default:
+#     driver: bridge
