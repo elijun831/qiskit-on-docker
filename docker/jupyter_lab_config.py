@@ -1,7 +1,6 @@
-c = get_config() 
-
-c.NotebookApp.certfile = u'/home/appuser/.jupyter/localhost.pem'
-c.NotebookApp.keyfile = u'/home/appuser/.jupyter/localhost.key'
-c.NotebookApp.ip = '0.0.0.0'
-c.NotebookApp.open_browser = False
-c.NotebookApp.allow_root = True
+c.ServerApp.certfile = u'/home/appuser/ssl_cert/localhost.pem'
+c.ServerApp.keyfile = u'/home/appuser/ssl_cert/localhost.key'
+c.ServerApp.ip = '0.0.0.0'
+c.ServerApp.open_browser = False
+c.ServerApp.port = 8888
+c.ServerApp.allow_root = True
