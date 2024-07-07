@@ -31,7 +31,7 @@ RUN mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks && \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /home/appuser/ssl_cert/localhost.key \
     -out /home/appuser/ssl_cert/localhost.pem \
-    -subj "/C=US/ST=State/L=City/O=Organization/OU=OrganizationalUnit/CN=localhost" && \
+    -subj "/C=US/ST=MA/L=Boston/O=Organization/OU=OrganizationalUnit/CN=localhost" && \
     chmod 644 /home/appuser/ssl_cert/localhost.key /home/appuser/ssl_cert/localhost.pem
 
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
