@@ -1,5 +1,7 @@
+# Use the official Python base image
 FROM python:3.11-bookworm
 
+# Set environment variables
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -15,8 +17,15 @@ ENV LANG=C.UTF-8 \
     POETRY_VERSION=1.8.3
 
 # Install required packages and Poetry
-RUN apt-get update && apt-get install -y curl openssl && \
-    curl -sSL https://install.python-poetry.org | python3 -
+RUN apt-get update && apt-get install -y \
+    curl \
+    openssl \
+    nano \
+    sudo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # Set working directory
 WORKDIR /app
@@ -27,26 +36,22 @@ COPY pyproject.toml poetry.lock ./
 # Install dependencies
 RUN poetry install --no-root
 
-# Create a non-root user and necessary directories
-RUN useradd -ms /bin/bash appuser && \
-    mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert
-
-# Generate SSL certificate
-RUN openssl genrsa -out /home/appuser/ssl_cert/localhost.key 2048 && \
-    openssl req -new -key /home/appuser/ssl_cert/localhost.key -out /home/appuser/ssl_cert/localhost.csr -subj "/CN=localhost" && \
-    openssl x509 -req -days 365 -in /home/appuser/ssl_cert/localhost.csr -signkey /home/appuser/ssl_cert/localhost.key -out /home/appuser/ssl_cert/localhost.pem
+# Create directories and generate SSL certificate
+RUN mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks && \
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /home/appuser/ssl_cert/localhost.key \
+    -out /home/appuser/ssl_cert/localhost.pem \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=OrganizationalUnit/CN=localhost" && \
+    chmod 644 /home/appuser/ssl_cert/localhost.key /home/appuser/ssl_cert/localhost.pem
 
 # Copy JupyterLab config file
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
-# Change ownership of directories
-RUN chown -R appuser:appuser /home/appuser/.jupyter /home/appuser/ssl_cert
-
-# Switch to non-root user
-USER appuser
+# Change ownership of directories to root
+RUN chown -R root:root /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks
 
 # Expose port for JupyterLab
 EXPOSE 8888
 
 # Command to run JupyterLab
-CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--notebook-dir=/app/notebooks"]
+CMD ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
