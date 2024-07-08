@@ -23,3 +23,7 @@ Or copy and paste one of these URLs:
     https://127.0.0.1:8888/lab?token=6[[token]]
 ```
 Copy the [[token]] and paste it in your Jupyter log-in webpage to access the Jupyter Notebook server.
+
+## References for learning Qiskit
+
+https://learning.quantum.ibm.com
