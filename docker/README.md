@@ -1,4 +1,5 @@
-# qiskit-on-docker: Qiskit and Quantum Computing Docker Environment
+# qiskit-on-docker
+## Qiskit and Quantum Computing Docker Environment
 
 This Dockerized environment sets up JupyterLab with a comprehensive suite of Qiskit and quantum computing-related Python packages, ensuring a robust setup for research and development. The Dockerfile not only installs essential dependencies and configures JupyterLab but also automatically generates SSL certificates, allowing JupyterLab to run in a secure HTTPS environment. Docker Compose simplifies service orchestration, while Poetry manages all Python dependencies efficiently. This configuration provides a secure, convenient, and fully-equipped environment for quantum computing projects.
 
