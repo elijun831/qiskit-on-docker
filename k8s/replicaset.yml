@@ -1,0 +1,30 @@
+# For creating the Replicaset
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: qiskit-on-docker
+  labels:
+    app: qiskit-on-docker
+spec:
+  replicas: 3 # Could be any number
+  selector:
+    matchLabels:
+      app: qiskit-on-docker
+  template:
+    metadata:
+      labels:
+        app: qiskit-on-docker
+    spec:
+      containers:
+      - name: qiskit-on-docker
+        image: elijun831/qiskit-on-docker:1.0.0
+        command: ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+            cpu: 100m
+            memory: 500Mi
+          limits:
+            cpu: 500m
+            memory: 2Gi
