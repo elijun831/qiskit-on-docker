@@ -24,29 +24,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
+    && npm install -g configurable-http-proxy \
     && curl -sSL https://install.python-poetry.org | python3 - \
-    && poetry --version \
-    && pip install jupyterlab
+    && poetry --version
 
 COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-root --no-dev
 
-RUN poetry install --no-root --no-dev \
-    && mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks \
+RUN mkdir -p /etc/jupyterhub /home/appuser/ssl_cert /app/notebooks \
     && openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
        -keyout /home/appuser/ssl_cert/localhost.key \
        -out /home/appuser/ssl_cert/localhost.pem \
        -subj "/C=US/ST=MA/L=Boston/O=Organization/OU=OrganizationalUnit/CN=localhost" \
     && chmod 644 /home/appuser/ssl_cert/localhost.key /home/appuser/ssl_cert/localhost.pem
 
-COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
+COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
 
-RUN echo '#!/bin/bash\n\
-jupyter lab password\n\
-sed -i "s/^c.ServerApp.password = .*/c.ServerApp.password = '\''$(cat /home/appuser/.jupyter/jupyter_server_config.json | jq -r .ServerApp.password)'\''/g" /home/appuser/.jupyter/jupyter_lab_config.py\n\
-' > /usr/local/bin/change_jupyter_password && chmod +x /usr/local/bin/change_jupyter_password
+RUN chown -R root:root /etc/jupyterhub /home/appuser/ssl_cert /app/notebooks
 
-RUN chown -R root:root /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks
+EXPOSE 8000
 
-EXPOSE 8888
-
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
+CMD ["jupyterhub", "-f", "/etc/jupyterhub/jupyterhub_config.py"]
