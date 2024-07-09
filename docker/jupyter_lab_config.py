@@ -1,29 +1,56 @@
+# Import necessary modules
+from jupyterhub.auth import LocalAuthenticator
+from passlib.hash import sha256_crypt
+
+# Get the configuration object
 c = get_config()
 
-# Set the base URL
-c.ServerApp.base_url = '/'
+# JupyterHub settings
+c.JupyterHub.ip = '0.0.0.0'
+c.JupyterHub.port = 8000
+c.JupyterHub.ssl_key = '/home/appuser/ssl_cert/localhost.key'
+c.JupyterHub.ssl_cert = '/home/appuser/ssl_cert/localhost.pem'
 
-# Set the IP address
-c.ServerApp.ip = '0.0.0.0'
+# Use LocalAuthenticator and allow it to create system users
+c.JupyterHub.authenticator_class = 'jupyterhub.auth.LocalAuthenticator'
+c.LocalAuthenticator.create_system_users = True
 
-# Do not open a browser
-c.ServerApp.open_browser = False
+# Allow all users to access the Hub (remove in production)
+c.Authenticator.allow_all = True
 
-# Set the port
-c.ServerApp.port = 8888
+# Suppress warning about allowed users
+c.Authenticator.any_allow_config = True
 
-# Allow root user
-c.ServerApp.allow_root = True
+# Grant admin access to specific users
+c.Authenticator.admin_users = {'admin'}
 
-# Set a password instead of using a token
-c.ServerApp.password = 'argon2:$argon2id$v=19$m=10240,t=10,p=8$xMPnfpR4mpA6V7zN3jIBSA$92WT4iExe4Sxj7PZtWLsXQxcx5eZOuVFgT3WZdVmmFY'
+# Spawn single-user servers as Docker containers
+c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
-# Set the notebook directory
-c.ServerApp.root_dir = '/app/notebooks'
+# Specify the image to use for single-user servers
+c.DockerSpawner.image = 'elijun831/qiskit-on-docker:1.0.0'
 
-# Use SSL certificate and key
-c.ServerApp.certfile = '/home/appuser/ssl_cert/localhost.pem'
-c.ServerApp.keyfile = '/home/appuser/ssl_cert/localhost.key'
+# Mount the host's Docker socket in the spawned containers
+c.DockerSpawner.volumes = {'/var/run/docker.sock': '/var/run/docker.sock'}
 
-# Enable HTTPS
-c.ServerApp.use_https = True
+# The directory in the container where the notebook files are located
+c.DockerSpawner.notebook_dir = '/app/notebooks'
+
+# Persist hub data
+c.JupyterHub.db_url = 'sqlite:///jupyterhub.sqlite'
+
+# Use HTTPS
+c.JupyterHub.ssl_key = '/home/appuser/ssl_cert/localhost.key'
+c.JupyterHub.ssl_cert = '/home/appuser/ssl_cert/localhost.pem'
+
+# Initial password setup for the admin user (replace 'password' with a secure password)
+def generate_hashed_password(password):
+    hashed_password = sha256_crypt.hash(password)
+    return hashed_password
+
+# Set the hashed password for notebook access
+c.NotebookApp.password_required = True
+c.NotebookApp.password = generate_hashed_password('qiskit')
+
+# Print the hashed password for reference (optional)
+print(f"Hashed password: {generate_hashed_password('qiskit')}")
