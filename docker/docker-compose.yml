@@ -1,9 +1,9 @@
 services:
-  jupyterlab:
+  jupyterhub:
     build: .
-    image: elijun831/qiskit-on-docker:1.0.0
+    image: elijun831/qiskit-on-docker:1.0.0-jupyterjub
     ports:
-      - "8888:8888"
+      - "8000:8000"
     volumes:
       - ./notebooks:/app/notebooks:rw
       - ./data:/home/appuser/data:rw
@@ -13,10 +13,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
-      - JUPYTER_ENABLE_LAB=yes
-      - NB_UID=0
-      - NB_GID=0
-    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
+    command: ["jupyterhub", "-f", "/etc/jupyterhub/jupyterhub_config.py"]
     networks:
       - mynetwork
 
