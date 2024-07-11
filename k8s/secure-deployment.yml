@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyterlab
+  template:
+    metadata:
+      labels:
+        app: jupyterlab
+    spec:
+      containers:
+        - name: jupyterlab
+          image: elijun831/qiskit-on-docker:jupyterlab
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: notebooks
+              mountPath: /app/notebooks
+              readOnly: false
+            - name: data
+              mountPath: /home/appuser/data
+              readOnly: false
+            - name: app
+              mountPath: /app
+              readOnly: false
+            - name: app-notebooks
+              mountPath: /home/appuser/notebooks
+              readOnly: false
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+            - name: JUPYTER_ENABLE_LAB
+              value: "yes"
+            - name: NB_UID
+              value: "0"
+            - name: NB_GID
+              value: "0"
+          command:
+            - "poetry"
+            - "run"
+            - "jupyter"
+            - "lab"
+            - "--ip=0.0.0.0"
+            - "--no-browser"
+            - "--allow-root"
+            - "--certfile=/home/appuser/ssl_cert/localhost.pem"
+            - "--keyfile=/home/appuser/ssl_cert/localhost.key"
+            - "--notebook-dir=/app/notebooks"
+          securityContext:
+            runAsUser: 0  # Run as root (adjust based on your requirements)
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /home/appuser/ssl_cert
+              readOnly: true
+            - name: jupyterlab-config
+              mountPath: /home/appuser/.jupyter
+              readOnly: true
+      volumes:
+        - name: notebooks
+          persistentVolumeClaim:
+            claimName: notebooks-pvc
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-pvc
+        - name: app
+          persistentVolumeClaim:
+            claimName: app-pvc
+        - name: app-notebooks
+          persistentVolumeClaim:
+            claimName: app-notebooks-pvc
+        - name: ssl-certs
+          secret:
+            secretName: ssl-certs-secret
+        - name: jupyterlab-config
+          configMap:
+            name: jupyterlab-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab-service
+spec:
+  selector:
+    app: jupyterlab
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+  type: LoadBalancer  # Adjust service type as per your setup
