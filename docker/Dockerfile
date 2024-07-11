@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm
+FROM python:3.11-slim-bookworm
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -20,13 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     openssl \
     gnupg \
+    jq \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
     && curl -sSL https://install.python-poetry.org | python3 - \
+    && mv /root/.local/bin/poetry /usr/local/bin/poetry \
     && poetry --version \
-    && pip install jupyterlab
+    && pip install jupyterlab tornado
 
 COPY pyproject.toml poetry.lock ./
 
