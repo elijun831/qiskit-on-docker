@@ -54,6 +54,7 @@ dockerspawner = "*"
 passlib = "*"
 ipython = "*"
 pycurl = "*"
+tornado = "*"
 
 [build-system]
 requires = ["poetry-core"]
