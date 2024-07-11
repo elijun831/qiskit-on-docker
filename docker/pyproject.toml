@@ -49,7 +49,11 @@ pyEPR-quantum = "*"
 pyquil = "*"
 pytket = "*"
 strangeworks = "*"
-jupyterlab = "*"
+jupyterhub = "*"
+dockerspawner = "*"
+passlib = "*"
+ipython = "*"
+pycurl = "*"
 
 [build-system]
 requires = ["poetry-core"]
