@@ -5,7 +5,7 @@ You should install [Docker](https://docs.docker.com/desktop/) on your machine.
 ## Getting Started
 1. In your terminal, run the Docker container:
 ```
-docker run -p 8888:8888 elijun831/qiskit-on-docker:1.0.0
+docker run -p 8888:8888 elijun831/qiskit-on-docker:jupyterlab
 ```
 
 2. After running the Docker container, you should see a URL in the terminal output as following:
