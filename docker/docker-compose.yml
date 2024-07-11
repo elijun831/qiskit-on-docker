@@ -1,7 +1,7 @@
 services:
   jupyterlab:
     build: .
-    image: elijun831/qiskit-on-docker:1.0.0
+    image: elijun831/qiskit-on-docker:jupyterlab
     ports:
       - "8888:8888"
     volumes:
@@ -9,7 +9,6 @@ services:
       - ./data:/home/appuser/data:rw
       - .:/app:rw
       - ./notebooks:/home/appuser/notebooks:rw
-    user: "root"
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
@@ -19,6 +18,13 @@ services:
     command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
     networks:
       - mynetwork
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined
+    cap_drop:
+      - all
+    tmpfs:
+      - /tmp
 
 networks:
   mynetwork:
