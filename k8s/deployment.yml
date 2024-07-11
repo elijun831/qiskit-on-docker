@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: qsharp
-        image: elijun831/qiskit-on-docker:1.0.0
+        image: elijun831/qiskit-on-docker:jupyterlab
         ports:
         - containerPort: 8888
         resources:
