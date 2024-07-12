@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   jupyterlab:
     build: .
@@ -9,13 +11,14 @@ services:
       - ./data:/home/appuser/data:rw
       - .:/app:rw
       - ./notebooks:/home/appuser/notebooks:rw
+      - ./jupyter_lab_config.py:/home/appuser/.jupyter/jupyter_lab_config.py:ro
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       - JUPYTER_ENABLE_LAB=yes
       - NB_UID=0
       - NB_GID=0
-    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
+    command: ["poetry", "run", "jupyter", "lab", "--config=/home/appuser/.jupyter/jupyter_lab_config.py"]
     networks:
       - mynetwork
     security_opt:
@@ -25,6 +28,8 @@ services:
       - all
     tmpfs:
       - /tmp
+    depends_on:
+      - etcd
 
   etcd:
     image: quay.io/coreos/etcd:v3.4.13
@@ -43,6 +48,7 @@ services:
 
 volumes:
   etcd_data:
+    driver: local
 
 networks:
   mynetwork:
