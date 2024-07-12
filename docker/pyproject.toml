@@ -55,6 +55,7 @@ passlib = "*"
 ipython = "*"
 pycurl = "*"
 tornado = "*"
+etcd3 = "*"
 
 [build-system]
 requires = ["poetry-core"]
