@@ -1,43 +1,88 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: qiskit-on-docker-jupyterlab-combined-policy  # Name of the CiliumNetworkPolicy object
+  name: qiskit-on-docker-jupyterlab-localhost-policy
+  namespace: quantum-research
+  annotations:
+    description: "Localhost network policy for JupyterLab with optional external services"
+    author: "Quantum Research Team"
+    version: "1.0"
+    
 spec:
-  endpointSelector:  # Selects endpoints (pods) to which this policy applies
+  description: "Restrict JupyterLab traffic to localhost with optional external services"
+  endpointSelector:
     matchLabels:
-      app: jupyterlab  # Matches pods labeled with 'app: jupyterlab'
+      app: jupyterlab
+      environment: research
   ingress:
-  - fromEndpoints:  # Allow traffic from specific endpoints (pods)
-    - matchLabels:
-        role: frontend  # Matches pods labeled with 'role: frontend'
+  - fromEndpoints:
+    - matchLabels: {}
     toPorts:
     - ports:
-        - port: '80'  # Allows HTTP traffic on port 80
-          protocol: TCP
-        - port: '443'  # Allows HTTPS traffic on port 443
-          protocol: TCP
-        - port: '5000'  # Allows UDP traffic on port 5000
-          protocol: UDP
+      - port: "8888"
+        protocol: TCP
+      - port: "80"
+        protocol: TCP
+      - port: "443"
+        protocol: TCP
+    - ports:
+      - port: "5000-5010"
+        protocol: UDP
   egress:
-  - toEndpoints:  # Allow traffic to specific endpoints (pods)
-    - matchLabels:
-        app: database  # Matches pods labeled with 'app: database'
+  - toCIDR:
+    - 127.0.0.1/32
     toPorts:
     - ports:
-        - port: '5432'  # Allows TCP traffic on port 5432 (PostgreSQL)
-          protocol: TCP
-        - port: '6379'  # Allows TCP traffic on port 6379 (Redis)
-          protocol: TCP
-        - port: '27017'  # Allows TCP traffic on port 27017 (MongoDB)
-          protocol: TCP
-  - toEndpoints:  # Allow traffic to specific endpoints (pods)
+      - port: "1-65535"
+        protocol: TCP
+      - port: "1-65535"
+        protocol: UDP
+
+  # Optional: Database access
+  - toEndpoints:
     - matchLabels:
-        app: monitoring  # Matches pods labeled with 'app: monitoring'
+        app: database
     toPorts:
     - ports:
-        - port: '9090'  # Allows TCP traffic on port 9090 (Prometheus)
-          protocol: TCP
-        - port: '3000'  # Allows TCP traffic on port 3000 (Grafana)
-          protocol: TCP
-        - port: '9100'  # Allows TCP traffic on port 9100 (Node Exporter)
-          protocol: TCP
+      - port: "5432"
+        protocol: TCP
+      - port: "6379"
+        protocol: TCP
+      - port: "27017"
+        protocol: TCP
+
+  # Optional: Monitoring service access
+  - toEndpoints:
+    - matchLabels:
+        app: monitoring
+    toPorts:
+    - ports:
+      - port: "9090-9100"
+        protocol: TCP
+  
+  # Optional: Quantum simulator access
+  - toEndpoints:
+    - matchLabels:
+        app: quantum-simulator
+    toPorts:
+    - ports:
+      - port: "8000-8010"
+        protocol: TCP
+  
+  # Optional: Cloud provider access
+  - toFQDNs:
+    - matchName: "*.quantum-cloud-provider.com" # Change it to the address of cloud providers such as AWS, Azure, GCP, etc.
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  
+  # Optional: External DNS and NTP access
+  - toEntities:
+    - world
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+      - port: "123"
+        protocol: UDP
