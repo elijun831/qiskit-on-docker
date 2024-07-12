@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qiskit-on-docker-jupyterlab-network-policy  # Name of the NetworkPolicy object
+spec:
+  podSelector:
+    matchLabels:
+      app: jupyterhub  # Select pods labeled with 'app: jupyterhub'
+  policyTypes:
+  - Ingress  # Allow incoming traffic
+  - Egress   # Allow outgoing traffic
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: data-processing  # Allow ingress traffic from pods labeled with 'role: data-processing'
+    ports:
+    - protocol: TCP
+      port: 8888  # Allow TCP traffic on port 8888 from 'role: data-processing' pods
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: database  # Allow egress traffic to pods labeled with 'app: database'
+    ports:
+    - protocol: TCP
+      port: 5432  # Allow TCP traffic on port 5432 to 'app: database' pods
