@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: jupyterlab-workflow-template
+  annotations:
+    description: "Workflow template for JupyterLab setup"
+spec:
+  entrypoint: jupyterlab-setup
+  templates:
+    - name: jupyterlab-setup
+      steps:
+        - - name: build-image
+            template: docker-build
+        - - name: deploy-jupyterlab
+            template: k8s-deploy
+
+    - name: docker-build
+      container:
+        image: docker:dind
+        command: [sh, -c]
+        args:
+          - |
+            docker build -t elijun831/qiskit-on-docker:jupyterlab .
+            docker push elijun831/qiskit-on-docker:jupyterlab
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+
+    - name: k8s-deploy
+      resource:
+        action: create
+        manifest: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: jupyterlab
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: jupyterlab
+            template:
+              metadata:
+                labels:
+                  app: jupyterlab
+              spec:
+                containers:
+                - name: jupyterlab
+                  image: elijun831/qiskit-on-docker:jupyterlab
+                  ports:
+                  - containerPort: 8888
+                  volumeMounts:
+                  - name: jupyterlab-data
+                    mountPath: /app/notebooks
+                volumes:
+                - name: jupyterlab-data
+                  persistentVolumeClaim:
+                    claimName: jupyterlab-pvc
