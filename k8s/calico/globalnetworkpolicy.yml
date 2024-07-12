@@ -1,0 +1,21 @@
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: qiskit-on-docker-jupyterlab-global-policy  # Name of the GlobalNetworkPolicy object
+spec:
+  applyOnForward: true  # Applies policy on traffic forwarded through the cluster
+  ingress:
+  - action: Allow  # Allow incoming traffic
+    source:
+      selector: "role == 'data-processing'"  # Source selector: allow traffic from pods labeled with 'role == 'data-processing''
+    destination:
+      ports:
+      - 8888  # Destination ports: allow TCP traffic on port 8888
+      protocol: TCP  # Protocol: TCP
+  egress:
+  - action: Allow  # Allow outgoing traffic
+    destination:
+      selector: "app == 'database'"  # Destination selector: allow traffic to pods labeled with 'app == 'database''
+    ports:
+    - 5432  # Destination ports: allow TCP traffic on port 5432
+    protocol: TCP  # Protocol: TCP
