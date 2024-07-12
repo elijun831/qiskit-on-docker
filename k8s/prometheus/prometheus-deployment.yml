@@ -1,35 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus
-  labels:
-    app: prometheus
+  name: jupyterlab
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: prometheus
+      app: jupyterlab
   template:
     metadata:
       labels:
-        app: prometheus
+        app: jupyterlab
     spec:
       containers:
-      - name: prometheus
-        image: prom/prometheus:main
-        args:
-        - "--config.file=/etc/prometheus/prometheus.yml"
-        - "--storage.tsdb.path=/prometheus"
+      - name: jupyterlab
+        image: elijun831/qiskit-on-docker:jupyterlab
         ports:
-        - containerPort: 9090
+        - containerPort: 8888
         volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus/
-        - name: prometheus-storage
-          mountPath: /prometheus
+        - name: jupyterlab-data
+          mountPath: /app/notebooks
+        - name: jupyterlab-config
+          mountPath: /home/appuser/.jupyter/jupyter_lab_config.py
+          subPath: jupyter_lab_config.py
       volumes:
-      - name: prometheus-config
+      - name: jupyterlab-data
+        persistentVolumeClaim:
+          claimName: jupyterlab-pvc
+      - name: jupyterlab-config
         configMap:
-          name: prometheus-config
-      - name: prometheus-storage
-        emptyDir: {}
+          name: jupyterlab-config
