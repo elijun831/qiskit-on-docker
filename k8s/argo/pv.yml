@@ -4,7 +4,10 @@ metadata:
   name: jupyterlab-pv
   annotations:
     description: "PersistentVolume for JupyterLab data"
-    backup.velero.io/backup-volumes: "jupyterlab-data"
+    pv.kubernetes.io/provisioned-by: "kubernetes.io/nfs"
+  labels:
+    type: nfs
+    app: jupyterlab
 spec:
   capacity:
     storage: 10Gi
@@ -12,7 +15,18 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: standard
+  storageClassName: nfs-storage
+  mountOptions:
+    - hard
+    - nfsvers=4.1
   nfs:
-    server: nfs-server.default.svc.cluster.local # Edit the NFS server address
-    path: "/path/to/data" # Edit the path
+    server: nfs-server.default.svc.cluster.local  # Edit the NFS server address
+    path: "/exports/jupyterlab-data"  # Edit the path
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node1  # Replace with your node name or remove if not needed
