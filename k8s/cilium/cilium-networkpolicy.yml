@@ -1,0 +1,43 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: qiskit-on-docker-jupyterlab-combined-policy  # Name of the CiliumNetworkPolicy object
+spec:
+  endpointSelector:  # Selects endpoints (pods) to which this policy applies
+    matchLabels:
+      app: jupyterlab  # Matches pods labeled with 'app: jupyterlab'
+  ingress:
+  - fromEndpoints:  # Allow traffic from specific endpoints (pods)
+    - matchLabels:
+        role: frontend  # Matches pods labeled with 'role: frontend'
+    toPorts:
+    - ports:
+        - port: '80'  # Allows HTTP traffic on port 80
+          protocol: TCP
+        - port: '443'  # Allows HTTPS traffic on port 443
+          protocol: TCP
+        - port: '5000'  # Allows UDP traffic on port 5000
+          protocol: UDP
+  egress:
+  - toEndpoints:  # Allow traffic to specific endpoints (pods)
+    - matchLabels:
+        app: database  # Matches pods labeled with 'app: database'
+    toPorts:
+    - ports:
+        - port: '5432'  # Allows TCP traffic on port 5432 (PostgreSQL)
+          protocol: TCP
+        - port: '6379'  # Allows TCP traffic on port 6379 (Redis)
+          protocol: TCP
+        - port: '27017'  # Allows TCP traffic on port 27017 (MongoDB)
+          protocol: TCP
+  - toEndpoints:  # Allow traffic to specific endpoints (pods)
+    - matchLabels:
+        app: monitoring  # Matches pods labeled with 'app: monitoring'
+    toPorts:
+    - ports:
+        - port: '9090'  # Allows TCP traffic on port 9090 (Prometheus)
+          protocol: TCP
+        - port: '3000'  # Allows TCP traffic on port 3000 (Grafana)
+          protocol: TCP
+        - port: '9100'  # Allows TCP traffic on port 9100 (Node Exporter)
+          protocol: TCP
