@@ -48,8 +48,7 @@ services:
 
 volumes:
   etcd_data:
-    driver: local
-
+  
 networks:
   mynetwork:
     driver: bridge
