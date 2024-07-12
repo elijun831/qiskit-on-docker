@@ -19,4 +19,4 @@ Go to ```https://127.0.0.1:8888``` in your browser. Make sure to include ```http
 
 3. View and verify a website’s digital certificate in your web browser. Check [this guide](https://www.idownloadblog.com/2020/01/21/how-to-view-digital-certificates-safari-firefox-chrome/) for more information.
 
-4. Copy and paste ```token#``` into your Jupyter login webpage to access the Jupyter Notebook server.
+4. Copy and paste ```token#``` into your Jupyterlab login webpage to access the Jupyter Notebook server.
