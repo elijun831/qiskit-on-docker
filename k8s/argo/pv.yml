@@ -14,5 +14,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: standard
   nfs:
-    server: nfs-server.default.svc.cluster.local
-    path: "/path/to/data"
+    server: nfs-server.default.svc.cluster.local # Edit the NFS server address
+    path: "/path/to/data" # Edit the path
