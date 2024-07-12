@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jupyterlab-pv
+  annotations:
+    description: "PersistentVolume for JupyterLab data"
+    backup.velero.io/backup-volumes: "jupyterlab-data"
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  nfs:
+    server: nfs-server.default.svc.cluster.local
+    path: "/path/to/data"
