@@ -58,6 +58,9 @@ tornado = "*"
 etcd3 = "*"
 sparse = "*"
 opt-einsum = "*"
+bcrypt = "*"
+jupyterhub-idle-culler = "*"
+jupyterhub-nativeauthenticator = "*"
 
 [build-system]
 requires = ["poetry-core"]
