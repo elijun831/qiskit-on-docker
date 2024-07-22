@@ -32,12 +32,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-root --no-dev \
-    && mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks \
+    && mkdir -p /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks /app/.Trash-0 \
     && openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
        -keyout /home/appuser/ssl_cert/localhost.key \
        -out /home/appuser/ssl_cert/localhost.pem \
        -subj "/C=US/ST=MA/L=Boston/O=Organization/OU=OrganizationalUnit/CN=localhost" \
-    && chmod 644 /home/appuser/ssl_cert/localhost.key /home/appuser/ssl_cert/localhost.pem
+    && chmod 644 /home/appuser/ssl_cert/localhost.key /home/appuser/ssl_cert/localhost.pem \
+    && chmod 777 /app/.Trash-0
 
 COPY jupyter_lab_config.py /home/appuser/.jupyter/jupyter_lab_config.py
 
@@ -46,7 +47,7 @@ jupyter lab password\n\
 sed -i "s/^c.ServerApp.password = .*/c.ServerApp.password = '\''$(cat /home/appuser/.jupyter/jupyter_server_config.json | jq -r .ServerApp.password)'\''/g" /home/appuser/.jupyter/jupyter_lab_config.py\n\
 ' > /usr/local/bin/change_jupyter_password && chmod +x /usr/local/bin/change_jupyter_password
 
-RUN chown -R root:root /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks
+RUN chown -R root:root /home/appuser/.jupyter /home/appuser/ssl_cert /app/notebooks /app/.Trash-0
 
 EXPOSE 8888
 
