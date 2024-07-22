@@ -29,7 +29,13 @@ spec:
           volumeMounts:
             - name: qiskit-on-docker-jupyterlab-storage
               mountPath: /app/notebooks
+            - name: tls-secret
+              mountPath: /home/appuser/ssl_cert
+              readOnly: true
       volumes:
         - name: qiskit-on-docker-jupyterlab-storage
           persistentVolumeClaim:
             claimName: jupyterlab-pvc
+        - name: tls-secret
+          secret:
+            secretName: jupyterlab-tls
