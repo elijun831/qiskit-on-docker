@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: jupyterlab-pv
+  name: qiskit-on-docker-jupyterlab-pv
 spec:
   capacity:
     storage: 5Gi
