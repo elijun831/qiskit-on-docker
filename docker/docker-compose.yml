@@ -1,6 +1,8 @@
 services:
   jupyterlab:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: elijun831/qiskit-on-docker:jupyterlab
     ports:
       - "8888:8888"
@@ -8,6 +10,7 @@ services:
       - ./notebooks:/app/notebooks:rw
       - ./data:/home/appuser/data:rw
       - .:/app:rw
+      - ./notebooks:/home/appuser/notebooks:rw
       - ./trash:/app/.Trash-0:rw
     environment:
       - PYTHONUNBUFFERED=1
