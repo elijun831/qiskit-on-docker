@@ -56,6 +56,8 @@ ipython = "*"
 pycurl = "*"
 tornado = "*"
 etcd3 = "*"
+sparse = "*"
+opt-einsum = "*"
 
 [build-system]
 requires = ["poetry-core"]
