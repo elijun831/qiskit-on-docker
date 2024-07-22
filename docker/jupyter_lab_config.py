@@ -38,22 +38,17 @@ c.ServerApp.csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-
 # Set a stricter HTTP Content Security Policy (CSP)
 c.ServerApp.tornado_settings = {
     'headers': {
-        'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self';"
-    }
+        'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self';",
+        'X-XSS-Protection': '1; mode=block',
+        'X-Content-Type-Options': 'nosniff',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+        'Server': ''
+    },
+    'cookie_options': {'secure': True, 'httponly': True}
 }
 
 # Set session timeout
 c.ServerApp.session_idle_timeout = 600  # in seconds, here 10 minutes
-
-# Enable X-XSS-Protection
-c.ServerApp.tornado_settings['headers']['X-XSS-Protection'] = '1; mode=block'
-
-# Enable X-Content-Type-Options
-c.ServerApp.tornado_settings['headers']['X-Content-Type-Options'] = 'nosniff'
-
-# Enforce HTTPS and secure cookies
-c.ServerApp.tornado_settings['headers']['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
-c.ServerApp.tornado_settings['cookie_options'] = {'secure': True, 'httponly': True}
 
 # Rate limiting to prevent brute force attacks
 from jupyter_server.auth import passwd_check_rate_limiter
