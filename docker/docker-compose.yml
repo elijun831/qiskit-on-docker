@@ -12,13 +12,15 @@ services:
       - .:/app:rw
       - ./notebooks:/home/appuser/notebooks:rw
       - ./trash:/app/.Trash-0:rw
+      - ./ssl:/etc/ssl:ro  # Mount the SSL certificates directory
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       - JUPYTER_ENABLE_LAB=yes
       - NB_UID=0
       - NB_GID=0
-    command: ["poetry", "run", "jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
+      - SSL_CERTFILE=/etc/ssl/tls.crt
+      - SSL_KEYFILE=/etc/ssl/tls.key
     networks:
       - mynetwork
     security_opt:
