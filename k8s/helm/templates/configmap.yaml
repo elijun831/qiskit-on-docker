@@ -7,7 +7,6 @@ metadata:
 data:
   cilium.conf: |
     # Cilium configuration
-    # General Cilium configuration options
     debug: "false"
     disable-envoy-version-check: "true"
     enable-ipv6: "false"
@@ -24,4 +23,3 @@ data:
     preallocate-bpf-maps: "true"
     sidecar-istio-proxy-image: "cilium/istio_proxy"
     tunnel: "vxlan"
-    # Add any additional configurations you need
