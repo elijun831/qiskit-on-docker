@@ -11,23 +11,35 @@ spec:
     metadata:
       labels:
         app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
-  spec:
-    containers:
-      - name: prometheus
-        image: {{ .Values.prometheus.image }}
-        ports:
-          - containerPort: {{ .Values.prometheus.service.port }}
-        volumeMounts:
-          - name: prometheus-config-volume
-            mountPath: /etc/prometheus
-            subPath: prometheus.yml
-    volumes:
-      - name: prometheus-config-volume
-        configMap:
-          name: combined-config
-          items:
-            - key: prometheus.yml
-              path: prometheus.yml
+    spec:
+      containers:
+        - name: prometheus
+          image: {{ .Values.prometheus.image }}
+          ports:
+            - containerPort: {{ .Values.prometheus.service.port }}
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus
+              subPath: prometheus.yml
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: combined-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  ports:
+    - protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: {{ .Values.prometheus.service.port }}
 ---
 apiVersion: v1
 kind: Service
