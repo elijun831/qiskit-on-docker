@@ -1,3 +1,5 @@
+configMapName: combined-config
+
 prometheus:
   image: prom/prometheus:latest
   nodeExporter:
