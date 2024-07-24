@@ -1,5 +1,11 @@
 configMapName: combined-config
 
+serviceAccount:
+  create: true
+  name: "qiskit-on-docker-service-account"
+  annotations: {}
+  automount: true
+
 prometheus:
   image: prom/prometheus:latest
   nodeExporter:
