@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -24,7 +26,7 @@ spec:
       volumes:
         - name: prometheus-config-volume
           configMap:
-            name: {{ include "qiskit-monitoring.fullname" . }}-combined-config
+            name: {{ .Values.configMapName }}
             items:
               - key: prometheus.yml
                 path: prometheus.yml
