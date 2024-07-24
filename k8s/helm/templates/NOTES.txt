@@ -1,0 +1,47 @@
+{{- if .Values.prometheus.service }}
+1. Prometheus service:
+{{- if eq .Values.prometheus.service.type "LoadBalancer" }}
+  Prometheus is accessible at the following URL:
+  {{ range .status.loadBalancer.ingress -}}
+  http://{{ .ip }}:{{ $.Values.prometheus.service.port }}
+  {{ end }}
+{{- else if eq .Values.prometheus.service.type "ClusterIP" }}
+  Prometheus is accessible within the cluster at:
+  prometheus:{{ .Values.prometheus.service.port }}
+{{- else if eq .Values.prometheus.service.type "NodePort" }}
+  Prometheus is accessible on the following NodePort:
+  {{ .Values.prometheus.service.nodePort }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.grafana.service }}
+2. Grafana service:
+{{- if eq .Values.grafana.service.type "LoadBalancer" }}
+  Grafana is accessible at the following URL:
+  {{ range .status.loadBalancer.ingress -}}
+  http://{{ .ip }}:{{ $.Values.grafana.service.port }}
+  {{ end }}
+{{- else if eq .Values.grafana.service.type "ClusterIP" }}
+  Grafana is accessible within the cluster at:
+  grafana:{{ .Values.grafana.service.port }}
+{{- else if eq .Values.grafana.service.type "NodePort" }}
+  Grafana is accessible on the following NodePort:
+  {{ .Values.grafana.service.nodePort }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.qiskit.service }}
+3. Qiskit JupyterLab service:
+{{- if eq .Values.qiskit.service.type "LoadBalancer" }}
+  Qiskit JupyterLab is accessible at the following URL:
+  {{ range .status.loadBalancer.ingress -}}
+  http://{{ .ip }}:{{ $.Values.qiskit.service.port }}
+  {{ end }}
+{{- else if eq .Values.qiskit.service.type "ClusterIP" }}
+  Qiskit JupyterLab is accessible within the cluster at:
+  qiskit:{{ .Values.qiskit.service.port }}
+{{- else if eq .Values.qiskit.service.type "NodePort" }}
+  Qiskit JupyterLab is accessible on the following NodePort:
+  {{ .Values.qiskit.service.nodePort }}
+{{- end }}
+{{- end }}
