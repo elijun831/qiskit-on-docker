@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: {{ .Values.prometheus.service.port }}
+  type: {{ .Values.prometheus.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: {{ .Values.grafana.service.port }}
+      targetPort: {{ .Values.grafana.service.port }}
+  type: {{ .Values.grafana.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cilium
+spec:
+  selector:
+    app: cilium
+  ports:
+    - protocol: TCP
+      port: {{ .Values.cilium.service.port }}
+      targetPort: {{ .Values.cilium.service.port }}
+  type: {{ .Values.cilium.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: qiskit
+spec:
+  selector:
+    app: qiskit
+  ports:
+    - protocol: TCP
+      port: {{ .Values.qiskit.service.port }}
+      targetPort: {{ .Values.qiskit.service.port }}
+  type: {{ .Values.qiskit.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - protocol: TCP
+      port: {{ .Values.alertmanager.service.port }}
+      targetPort: {{ .Values.alertmanager.service.port }}
+  type: {{ .Values.alertmanager.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+spec:
+  selector:
+    app: loki
+  ports:
+    - protocol: TCP
+      port: {{ .Values.loki.service.port }}
+      targetPort: {{ .Values.loki.service.port }}
+  type: {{ .Values.loki.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiali
+spec:
+  selector:
+    app: kiali
+  ports:
+    - protocol: TCP
+      targetPort: {{ .Values.kiali.service.port }}
+  type: {{ .Values.kiali.service.type }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+spec:
+  selector:
+    app: jaeger
+  ports:
+    - protocol: TCP
+      port: {{ .Values.jaeger.service.port }}
+      targetPort: {{ .Values.jaeger.service.port }}
+  type: {{ .Values.jaeger.service.type }}
+                                                                                                                                                                  94,13         70%
