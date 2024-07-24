@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: prometheus
+      app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
   template:
     metadata:
       labels:
-        app: prometheus
+        app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
     spec:
       containers:
         - name: prometheus
@@ -28,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
 spec:
   selector:
-    app: prometheus
+    app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
   ports:
     - protocol: TCP
       port: {{ .Values.prometheus.service.port }}
@@ -40,16 +40,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cilium
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cilium
+      app: {{ include "qiskit-monitoring.fullname" . }}-cilium
   template:
     metadata:
       labels:
-        app: cilium
+        app: {{ include "qiskit-monitoring.fullname" . }}-cilium
     spec:
       containers:
         - name: cilium
@@ -70,10 +70,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: cilium
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
 spec:
   selector:
-    app: cilium
+    app: {{ include "qiskit-monitoring.fullname" . }}-cilium
   ports:
     - protocol: TCP
       port: {{ .Values.cilium.service.port }}
@@ -82,16 +82,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qiskit
+  name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: qiskit
+      app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
   template:
     metadata:
       labels:
-        app: qiskit
+        app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
     spec:
       containers:
         - name: qiskit
@@ -105,10 +105,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: qiskit
+  name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
 spec:
   selector:
-    app: qiskit
+    app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
   ports:
     - protocol: TCP
       port: {{ .Values.qiskit.service.port }}
@@ -117,16 +117,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: alertmanager
+  name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: alertmanager
+      app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
   template:
     metadata:
       labels:
-        app: alertmanager
+        app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
     spec:
       containers:
         - name: alertmanager
@@ -137,10 +137,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: alertmanager
+  name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
 spec:
   selector:
-    app: alertmanager
+    app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
   ports:
     - protocol: TCP
       port: {{ .Values.alertmanager.service.port }}
@@ -149,16 +149,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loki
+  name: {{ include "qiskit-monitoring.fullname" . }}-loki
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: loki
+      app: {{ include "qiskit-monitoring.fullname" . }}-loki
   template:
     metadata:
       labels:
-        app: loki
+        app: {{ include "qiskit-monitoring.fullname" . }}-loki
     spec:
       containers:
         - name: loki
@@ -169,10 +169,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: loki
+  name: {{ include "qiskit-monitoring.fullname" . }}-loki
 spec:
   selector:
-    app: loki
+    app: {{ include "qiskit-monitoring.fullname" . }}-loki
   ports:
     - protocol: TCP
       port: {{ .Values.loki.service.port }}
@@ -181,16 +181,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kiali
+  name: {{ include "qiskit-monitoring.fullname" . }}-kiali
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kiali
+      app: {{ include "qiskit-monitoring.fullname" . }}-kiali
   template:
     metadata:
       labels:
-        app: kiali
+        app: {{ include "qiskit-monitoring.fullname" . }}-kiali
     spec:
       containers:
         - name: kiali
@@ -201,10 +201,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kiali
+  name: {{ include "qiskit-monitoring.fullname" . }}-kiali
 spec:
   selector:
-    app: kiali
+    app: {{ include "qiskit-monitoring.fullname" . }}-kiali
   ports:
     - protocol: TCP
       port: {{ .Values.kiali.service.port }}
@@ -213,16 +213,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jaeger
+  name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jaeger
+      app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
   template:
     metadata:
       labels:
-        app: jaeger
+        app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
     spec:
       containers:
         - name: jaeger
@@ -233,10 +233,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaeger
+  name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
 spec:
   selector:
-    app: jaeger
+    app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
   ports:
     - protocol: TCP
       port: {{ .Values.jaeger.service.port }}
@@ -245,7 +245,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: trivy-scan
+  name: {{ include "qiskit-monitoring.fullname" . }}-trivy-scan
 spec:
   schedule: "{{ .Values.trivy.schedule }}"  # Use the schedule defined in values.yaml
   jobTemplate:
