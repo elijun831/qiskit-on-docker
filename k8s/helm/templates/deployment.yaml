@@ -11,19 +11,23 @@ spec:
     metadata:
       labels:
         app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
-    spec:
-      containers:
-        - name: prometheus
-          image: {{ .Values.prometheus.image }}
-          ports:
-            - containerPort: {{ .Values.prometheus.service.port }}
-          volumeMounts:
-            - name: prometheus-config-volume
-              mountPath: /etc/prometheus
-      volumes:
-        - name: prometheus-config-volume
-          configMap:
-            name: prometheus-config
+  spec:
+    containers:
+      - name: prometheus
+        image: {{ .Values.prometheus.image }}
+        ports:
+          - containerPort: {{ .Values.prometheus.service.port }}
+        volumeMounts:
+          - name: prometheus-config-volume
+            mountPath: /etc/prometheus
+            subPath: prometheus.yml
+    volumes:
+      - name: prometheus-config-volume
+        configMap:
+          name: combined-config
+          items:
+            - key: prometheus.yml
+              path: prometheus.yml
 ---
 apiVersion: v1
 kind: Service
@@ -50,22 +54,27 @@ spec:
     metadata:
       labels:
         app: {{ include "qiskit-monitoring.fullname" . }}-cilium
-    spec:
-      containers:
-        - name: cilium
-          image: {{ .Values.cilium.image }}
-          ports:
-            - containerPort: {{ .Values.cilium.service.port }}
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - name: cilium-config
-              mountPath: /etc/cilium/cilium.conf
-              subPath: cilium.conf
-      volumes:
-        - name: cilium-config
-          configMap:
-            name: cilium-config
+  spec:
+    containers:
+      - name: cilium
+        image: {{ .Values.cilium.image }}
+        args:
+          - agent
+        ports:
+          - containerPort: {{ .Values.cilium.service.port }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: cilium-config
+            mountPath: /etc/cilium/cilium.conf
+            subPath: cilium.conf
+    volumes:
+      - name: cilium-config
+        configMap:
+          name: combined-config
+          items:
+            - key: cilium.conf
+              path: cilium.conf
 ---
 apiVersion: v1
 kind: Service
