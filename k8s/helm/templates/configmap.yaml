@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cilium-config
+  labels:
+    app: cilium
+data:
+  cilium.conf: |
+    # Cilium configuration
+    # General Cilium configuration options
+    debug: "false"
+    disable-envoy-version-check: "true"
+    enable-ipv6: "false"
+    enable-k8s-event-handover: "true"
+    enable-l7-proxy: "true"
+    enable-node-port: "true"
+    enable-remote-node-identity: "true"
+    enable-well-known-identities: "true"
+    ipam: "cluster-pool"
+    kube-proxy-replacement: "strict"
+    masquerade: "true"
+    monitor-aggregation: "low"
+    native-routing-cidr: "10.0.0.0/8"
+    preallocate-bpf-maps: "true"
+    sidecar-istio-proxy-image: "cilium/istio_proxy"
+    tunnel: "vxlan"
+    # Add any additional configurations you need
