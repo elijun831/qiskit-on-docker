@@ -218,6 +218,17 @@ spec:
           image: {{ .Values.kiali.image }}
           ports:
             - containerPort: {{ .Values.kiali.service.port }}
+          env:
+            - name: KIALI_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kiali
+                  key: username
+            - name: KIALI_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: kiali
+                  key: passphrase
 ---
 apiVersion: v1
 kind: Service
