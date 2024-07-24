@@ -1,0 +1,273 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: {{ .Values.prometheus.image }}
+          ports:
+            - containerPort: {{ .Values.prometheus.service.port }}
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: {{ .Values.prometheus.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cilium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cilium
+  template:
+    metadata:
+      labels:
+        app: cilium
+    spec:
+      containers:
+        - name: cilium
+          image: {{ .Values.cilium.image }}
+          ports:
+            - containerPort: {{ .Values.cilium.service.port }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: cilium-config
+              mountPath: /etc/cilium/cilium.conf
+              subPath: cilium.conf
+      volumes:
+        - name: cilium-config
+          configMap:
+            name: cilium-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cilium
+spec:
+  selector:
+    app: cilium
+  ports:
+    - protocol: TCP
+      port: {{ .Values.cilium.service.port }}
+      targetPort: {{ .Values.cilium.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qiskit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qiskit
+  template:
+    metadata:
+      labels:
+        app: qiskit
+    spec:
+      containers:
+        - name: qiskit
+          image: {{ .Values.qiskit.image }}
+          ports:
+            - containerPort: {{ .Values.qiskit.service.port }}
+          env:
+            - name: JUPYTER_ENABLE_LAB
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qiskit
+spec:
+  selector:
+    app: qiskit
+  ports:
+    - protocol: TCP
+      port: {{ .Values.qiskit.service.port }}
+      targetPort: {{ .Values.qiskit.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: {{ .Values.alertmanager.image }}
+          ports:
+            - containerPort: {{ .Values.alertmanager.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - protocol: TCP
+      port: {{ .Values.alertmanager.service.port }}
+      targetPort: {{ .Values.alertmanager.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+        - name: loki
+          image: {{ .Values.loki.image }}
+          ports:
+            - containerPort: {{ .Values.loki.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+spec:
+  selector:
+    app: loki
+  ports:
+    - protocol: TCP
+      port: {{ .Values.loki.service.port }}
+      targetPort: {{ .Values.loki.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiali
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kiali
+  template:
+    metadata:
+      labels:
+        app: kiali
+    spec:
+      containers:
+        - name: kiali
+          image: {{ .Values.kiali.image }}
+          ports:
+            - containerPort: {{ .Values.kiali.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiali
+spec:
+  selector:
+    app: kiali
+  ports:
+    - protocol: TCP
+      port: {{ .Values.kiali.service.port }}
+      targetPort: {{ .Values.kiali.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+        - name: jaeger
+          image: {{ .Values.jaeger.image }}
+          ports:
+            - containerPort: {{ .Values.jaeger.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+spec:
+  selector:
+    app: jaeger
+  ports:
+    - protocol: TCP
+      port: {{ .Values.jaeger.service.port }}
+      targetPort: {{ .Values.jaeger.service.port }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: trivy-scan
+spec:
+  schedule: "{{ .Values.trivy.schedule }}"  # Use the schedule defined in values.yaml
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: trivy
+              image: "{{ .Values.trivy.image }}"  # Use the Trivy image defined in values.yaml
+              args:
+                [
+                  "image",
+                  "--format",
+                  "table",
+                  "--output",
+                  "{{ .Values.trivy.reportDirectory }}/trivy-report.txt",  # Save the report to the specified directory
+                  "{{ .Values.trivy.targetImage }}"  # Scan the target image defined in values.yaml
+                ]
+              volumeMounts:
+                - name: report-volume
+                  mountPath: "{{ .Values.trivy.reportDirectory }}"  # Mount the report directory
+          restartPolicy: OnFailure
+          volumes:
+            - name: report-volume
+              emptyDir: {}  # Use an empty directory for report storage
