@@ -16,7 +16,7 @@ grafana:
     port: 3000
 
 cilium:
-  image: quay.io/cilium/cilium:v1.10.4
+  image: cilium/cilium:stable
   service:
     type: ClusterIP
     port: 9090
@@ -34,13 +34,13 @@ alertmanager:
     port: 9093
 
 loki:
-  image: grafana/loki:2.3.0
+  image: grafana/loki:main
   service:
     type: ClusterIP
     port: 3100
 
 kiali:
-  image: kiali/kiali:v1.34
+  image: kiali/kiali:latest
   service:
     type: ClusterIP
     port: 20001
