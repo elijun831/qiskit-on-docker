@@ -11,3 +11,25 @@ rules:
 - apiGroups: ["*"]
   resources: ["*"]
   verbs: ["*"]
+
+---
+
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: cilium-psp
+spec:
+  privileged: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'secret'
+    - 'projected'
