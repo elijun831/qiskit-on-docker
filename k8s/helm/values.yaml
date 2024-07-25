@@ -52,6 +52,10 @@ kiali:
   service:
     type: ClusterIP
     port: 20001
+  secret:
+    username: kiali
+    passphrase: password
+    signingKey: signingkey 
 
 jaeger:
   image: jaegertracing/all-in-one:latest
