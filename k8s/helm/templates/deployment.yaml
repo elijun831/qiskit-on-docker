@@ -106,12 +106,12 @@ spec:
       labels:
         app: {{ include "qiskit-monitoring.fullname" . }}-cilium
     spec:
-      serviceAccountName: cilium  
+      serviceAccountName: {{ .Values.serviceAccounts.cilium.name }}
       containers:
         - name: cilium
-          image: cilium/cilium:stable
+          image: {{ .Values.cilium.image }}
           ports:
-            - containerPort: 9090
+            - containerPort: {{ .Values.cilium.service.port }}
           volumeMounts:
             - name: cilium-config
               mountPath: /etc/cilium/cilium.conf
@@ -119,7 +119,7 @@ spec:
       volumes:
         - name: cilium-config
           configMap:
-            name: {{ include "qiskit-monitoring.fullname" . }}-combined-config
+            name: {{ .Values.configMapName }}
 ---
 apiVersion: apps/v1
 kind: Deployment
