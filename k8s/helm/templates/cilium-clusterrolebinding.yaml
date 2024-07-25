@@ -2,11 +2,16 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: cilium
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: control
+    meta.helm.sh/release-namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: cilium
+    namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cilium
-subjects:
-  - kind: ServiceAccount
-    name: cilium
-    namespace: default
