@@ -91,17 +91,35 @@ spec:
               - key: cilium.conf
                 path: cilium.conf
 ---
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  name: control-qiskit-monitoring-cilium
+  namespace: default
 spec:
+  replicas: 1
   selector:
-    app: {{ include "qiskit-monitoring.fullname" . }}-cilium
-  ports:
-    - protocol: TCP
-      port: {{ .Values.cilium.service.port }}
-      targetPort: {{ .Values.cilium.service.port }}
+    matchLabels:
+      app: control-qiskit-monitoring-cilium
+  template:
+    metadata:
+      labels:
+        app: control-qiskit-monitoring-cilium
+    spec:
+      serviceAccountName: cilium  
+      containers:
+        - name: cilium
+          image: cilium/cilium:stable
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: cilium-config
+              mountPath: /etc/cilium/cilium.conf
+              subPath: cilium.conf
+      volumes:
+        - name: cilium-config
+          configMap:
+            name: combined-config
 ---
 apiVersion: apps/v1
 kind: Deployment
