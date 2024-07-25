@@ -206,6 +206,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-kiali
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -232,6 +234,11 @@ spec:
                 secretKeyRef:
                   name: kiali
                   key: passphrase
+            - name: KIALI_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: kiali
+                  key: signingKey
 ---
 apiVersion: v1
 kind: Service
