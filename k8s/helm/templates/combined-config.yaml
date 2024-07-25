@@ -4,6 +4,13 @@ metadata:
   name: combined-config
   namespace: default
 data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
   cilium.conf: |
     # Cilium configuration
     debug: "false"
