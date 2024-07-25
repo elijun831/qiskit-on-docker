@@ -1,11 +1,13 @@
 configMapName: combined-config
 
-serviceAccount:
-  create: true
-  name: "qiskit-on-docker-service-account"
-  annotations: {}
-  automount: true
-
+serviceAccounts:
+  - name: qiskit-on-docker-service-account
+    annotations: {}
+    automount: true
+  - name: cilium
+    annotations: {}
+    automount: true
+  
 prometheus:
   image: prom/prometheus:latest
   nodeExporter:
