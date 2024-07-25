@@ -53,6 +53,12 @@ loki:
     port: 3100
 
 kiali:
+  service:
+    port: 20001
+  secret:
+    username: "admin"
+    passphrase: "admin"
+    signingKey: "some-signing-key"
   env:
     - name: KIALI_USERNAME
       valueFrom:
