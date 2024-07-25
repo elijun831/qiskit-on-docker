@@ -59,6 +59,7 @@ kiali:
     username: "admin"
     passphrase: "admin"
     signingKey: "some-signing-key"
+  image: "kiali/kiali:latest"
   env:
     - name: KIALI_USERNAME
       valueFrom:
