@@ -26,7 +26,7 @@ spec:
       volumes:
         - name: prometheus-config-volume
           configMap:
-            name: {{ .Values.configMapName }}
+            name: combined-config
             items:
               - key: prometheus.yml
                 path: prometheus.yml
@@ -59,6 +59,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -85,7 +87,7 @@ spec:
       volumes:
         - name: cilium-config
           configMap:
-            name: {{ include "qiskit-monitoring.fullname" . }}-combined-config
+            name: combined-config
             items:
               - key: cilium.conf
                 path: cilium.conf
