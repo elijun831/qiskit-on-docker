@@ -28,3 +28,108 @@ data:
     preallocate-bpf-maps: "true"
     sidecar-istio-proxy-image: "cilium/istio_proxy"
     tunnel: "vxlan"
+  grafana.ini: |
+    [paths]
+    data = /var/lib/grafana/data
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    [security]
+    admin_user = admin
+    admin_password = {{ .Values.grafana.adminPassword }}
+    [users]
+    allow_sign_up = true
+    [auth]
+    disable_login_form = false
+    [auth.anonymous]
+    enabled = false
+  loki-local-config.yaml: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    ingester:
+      lifecycler:
+        address: 127.0.0.1
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+        final_sleep: 0s
+      chunk_idle_period: 5m
+      chunk_retain_period: 30s
+      max_transfer_retries: 0
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 168h
+    storage_config:
+      boltdb:
+        directory: /loki/index
+      filesystem:
+        directory: /loki/chunks
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+    chunk_store_config:
+      max_look_back_period: 0s
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 336h
+  jaeger-config.yaml: |
+    collector:
+      zipkin:
+        http-port: 9411
+    processor:
+      batch:
+        # flush interval
+        flush-interval: 5s
+        # number of spans to accumulate in memory before flushing
+        # must be bigger than max queue size
+        max-queue-size: 20000
+        # default is 2000
+        # set to 0 to disable
+        queue-size: 10000
+        # default is 0 which means unlimited
+        num-workers: 100
+    sampling:
+      strategies:
+        # this is the sampling strategy definition
+        default_strategy:
+          type: const
+          param: 1
+        other_strategies:
+          - service: frontend
+            type: const
+            param: 0.5
+          - service: backend
+            type: probabilistic
+            param: 0.1
+          - service: database
+            type: rateLimiting
+            param: 5
+  alertmanager-config.yaml: |
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - send_resolved: true
+            channel: '#alerts'
+            api_url: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname', 'dev', 'instance']
