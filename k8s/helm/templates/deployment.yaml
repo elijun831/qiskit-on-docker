@@ -94,17 +94,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: control-qiskit-monitoring-cilium
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: control-qiskit-monitoring-cilium
+      app: {{ include "qiskit-monitoring.fullname" . }}-cilium
   template:
     metadata:
       labels:
-        app: control-qiskit-monitoring-cilium
+        app: {{ include "qiskit-monitoring.fullname" . }}-cilium
     spec:
       serviceAccountName: cilium  
       containers:
@@ -119,7 +119,7 @@ spec:
       volumes:
         - name: cilium-config
           configMap:
-            name: combined-config
+            name: {{ include "qiskit-monitoring.fullname" . }}-combined-config
 ---
 apiVersion: apps/v1
 kind: Deployment
