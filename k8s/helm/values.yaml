@@ -1,13 +1,16 @@
 configMapName: combined-config
 
 serviceAccounts:
-  - name: qiskit-on-docker-service-account
+  create: true
+  qiskitOnDocker:
+    name: "qiskit-on-docker-service-account"
     annotations: {}
     automount: true
-  - name: cilium
+  cilium:
+    name: "cilium"
     annotations: {}
     automount: true
-  
+
 prometheus:
   image: prom/prometheus:latest
   nodeExporter:
@@ -54,10 +57,6 @@ kiali:
   service:
     type: ClusterIP
     port: 20001
-  secret:
-    username: kiali
-    passphrase: password
-    signingKey: signingkey 
 
 jaeger:
   image: jaegertracing/all-in-one:latest
@@ -70,12 +69,6 @@ trivy:
   schedule: "0 0 * * *"  # Set to scan every day at midnight
   targetImage: "elijun831/qiskit-on-docker:jupyterlab"  # Target image to scan
   reportDirectory: "/reports"  # Directory to store scan reports
-
-serviceAccount:
-  create: true
-  name: ""
-  annotations: {}
-  automount: true
 
 ingress:
   enabled: false
