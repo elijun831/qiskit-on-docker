@@ -59,7 +59,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-cilium
-  namespace: default
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -74,8 +75,11 @@ spec:
       containers:
         - name: cilium
           image: {{ .Values.cilium.image }}
+          command: ["cilium-agent"]
           ports:
             - containerPort: {{ .Values.cilium.service.port }}
+          securityContext:
+            privileged: true
           volumeMounts:
             - name: cilium-config
               mountPath: /etc/cilium/cilium.conf
@@ -84,6 +88,9 @@ spec:
         - name: cilium-config
           configMap:
             name: {{ .Values.configMapName }}
+            items:
+              - key: cilium.conf
+                path: cilium.conf
 ---
 apiVersion: apps/v1
 kind: Deployment
