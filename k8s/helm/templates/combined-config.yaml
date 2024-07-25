@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Values.configMapName }}
+  namespace: kube-system
 data:
   prometheus.yml: |
     global:
@@ -28,6 +29,8 @@ data:
     preallocate-bpf-maps: "true"
     sidecar-istio-proxy-image: "cilium/istio_proxy"
     tunnel: "vxlan"
+    k8s-heartbeat-timeout: "600s"
+    k8s-sync-timeout: "60m"
   grafana.ini: |
     [paths]
     data = /var/lib/grafana/data
