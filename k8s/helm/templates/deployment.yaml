@@ -21,7 +21,7 @@ spec:
             - containerPort: {{ .Values.prometheus.service.port }}
           volumeMounts:
             - name: prometheus-config-volume
-              mountPath: /etc/prometheus
+              mountPath: /etc/prometheus/prometheus.yml
               subPath: prometheus.yml
       volumes:
         - name: prometheus-config-volume
