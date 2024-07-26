@@ -91,7 +91,6 @@ data:
         # flush interval
         flush-interval: 5s
         # number of spans to accumulate in memory before flushing
-        # must be bigger than max queue size
         max-queue-size: 20000
         # default is 2000
         # set to 0 to disable
@@ -135,3 +134,9 @@ data:
         target_match:
           severity: 'warning'
         equal: ['alertname', 'dev', 'instance']
+  etcd.config: |
+    endpoints:
+      - https://etcd-server:2379
+    ca-file: /etc/ssl/etcd/etcd-ca.pem
+    cert-file: /etc/ssl/etcd/etcd-client.pem
+    key-file: /etc/ssl/etcd/etcd-client-key.pem
