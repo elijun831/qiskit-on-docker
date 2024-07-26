@@ -31,6 +31,11 @@ spec:
         - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
         - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
         - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
+        env:
+        - name: CILIUM_KVSTORE
+          value: "etcd"
+        - name: CILIUM_KVSTORE_OPTIONS
+          value: "/var/lib/cilium/etcd-config.yaml"
         volumeMounts:
         - mountPath: /var/lib/etcd-config
           name: etcd-config
