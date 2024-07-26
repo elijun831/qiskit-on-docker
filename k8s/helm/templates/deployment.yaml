@@ -1,46 +1,3 @@
-{{- if .Values.cilium.enabled }}
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: cilium
-  namespace: kube-system
-spec:
-  selector:
-    matchLabels:
-      k8s-app: cilium
-  template:
-    metadata:
-      labels:
-        k8s-app: cilium
-    spec:
-      serviceAccountName: cilium
-      containers:
-      - name: cilium
-        image: "{{ .Values.cilium.image }}"
-        command:
-        - cilium-agent
-        args:
-        - --kvstore={{ .Values.cilium.kvstore.type }}
-        - --kvstore-opt=etcd.config=/var/lib/etcd-config/etcd.config
-        - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
-        - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
-        - --enable-remote-node-identity=true
-        - --container-runtime=none
-        - --tunnel={{ .Values.cilium.tunnel }}
-        - --cluster-name={{ .Values.cilium.clusterName }}
-        - --identity-allocation-mode={{ .Values.cilium.identityAllocationMode }}
-        - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
-        - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
-        - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
-        volumeMounts:
-        - mountPath: /var/lib/etcd-config
-          name: etcd-config
-      volumes:
-      - name: etcd-config
-        configMap:
-          name: {{ .Values.cilium.kvstore.configMap }}
-{{- end }}
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -86,22 +43,49 @@ spec:
       port: {{ .Values.prometheus.service.port }}
       targetPort: {{ .Values.prometheus.service.port }}
 ---
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
+  replicas: 1
   selector:
-    app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
-  ports:
-    - protocol: TCP
-      port: {{ .Values.prometheus.service.port }}
-      targetPort: {{ .Values.prometheus.service.port }}
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-cilium
+    spec:
+      serviceAccountName: {{ .Values.serviceAccounts.cilium.name }}
+      containers:
+        - name: cilium
+          image: {{ .Values.cilium.image }}
+          command: ["cilium-agent"]
+          ports:
+            - containerPort: {{ .Values.cilium.service.port }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: cilium-config
+              mountPath: /etc/cilium/cilium.conf
+              subPath: cilium.conf
+      volumes:
+        - name: cilium-config
+          configMap:
+            name: {{ .Values.configMapName }}
+            items:
+              - key: cilium.conf
+                path: cilium.conf
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -137,6 +121,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -169,6 +155,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-loki
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -201,6 +189,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -233,6 +223,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-trivy-scan
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
 spec:
   schedule: "{{ .Values.trivy.schedule }}"  # Use the schedule defined in values.yaml
   jobTemplate:
@@ -245,3 +237,16 @@ spec:
               args:
                 [
                   "image",
+                  "--format",
+                  "table",
+                  "--output",
+                  "{{ .Values.trivy.reportDirectory }}/trivy-report.txt",  # Save the report to the specified directory
+                  "{{ .Values.trivy.targetImage }}"  # Scan the target image defined in values.yaml
+                ]
+              volumeMounts:
+                - name: report-volume
+                  mountPath: "{{ .Values.trivy.reportDirectory }}"  # Mount the report directory
+          restartPolicy: OnFailure
+          volumes:
+            - name: report-volume
+              emptyDir: {}  # Use an empty directory for report storage
