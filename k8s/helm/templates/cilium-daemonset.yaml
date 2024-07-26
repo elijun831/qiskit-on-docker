@@ -15,26 +15,26 @@ spec:
       serviceAccountName: cilium
       containers:
       - name: cilium
-        image: "quay.io/cilium/cilium:v1.15.7"
+        image: "{{ .Values.cilium.image.repository }}:{{ .Values.cilium.image.tag }}"
         command:
         - cilium-agent
         args:
-        - --kvstore=etcd
+        - --kvstore={{ .Values.cilium.kvstore.type }}
         - --kvstore-opt=etcd.config=/var/lib/etcd-config/etcd.config
-        - --enable-ipv4=true
-        - --enable-ipv6=false
+        - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
+        - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
         - --enable-remote-node-identity=true
         - --container-runtime=none
-        - --tunnel=vxlan
-        - --cluster-name=k8s-cluster
-        - --identity-allocation-mode=crd
-        - --native-routing-cidr=10.0.0.0/8
-        - --enable-host-reachable-services=true
-        - --auto-direct-node-routes=true
+        - --tunnel={{ .Values.cilium.tunnel }}
+        - --cluster-name={{ .Values.cilium.clusterName }}
+        - --identity-allocation-mode={{ .Values.cilium.identityAllocationMode }}
+        - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
+        - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
+        - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
         volumeMounts:
         - mountPath: /var/lib/etcd-config
           name: etcd-config
       volumes:
       - name: etcd-config
         configMap:
-          name: cilium-etcd-config
+          name: {{ .Values.cilium.kvstore.configMap }}
