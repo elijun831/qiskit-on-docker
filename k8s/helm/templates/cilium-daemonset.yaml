@@ -1,48 +1,39 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: cilium
-  namespace: kube-system
+  name: control-qiskit-monitoring-cilium
+  namespace: default
+  labels:
+    app: control-qiskit-monitoring-cilium
 spec:
   selector:
     matchLabels:
-      k8s-app: cilium
+      app: control-qiskit-monitoring-cilium
   template:
     metadata:
       labels:
-        k8s-app: cilium
+        app: control-qiskit-monitoring-cilium
     spec:
-      serviceAccountName: cilium
       containers:
       - name: cilium
-        image: "cilium/cilium:stable"
-        command:
-        - cilium-agent
+        image: cilium/cilium:stable
         args:
-        - --kvstore=etcd
-        - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
-        - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
-        - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
-        - --enable-remote-node-identity=true
-        - --container-runtime=none
-        - --tunnel={{ .Values.cilium.tunnel }}
-        - --cluster-name={{ .Values.cilium.clusterName }}
-        - --identity-allocation-mode={{ .Values.cilium.identityAllocationMode }}
-        - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
-        - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
-        - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
-        env:
-        - name: CILIUM_KVSTORE
-          value: "etcd"
-        - name: CILIUM_KVSTORE_OPTIONS
-          value: "/var/lib/cilium/etcd-config.yaml"
+          - --kvstore=etcd
+          - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
+          - --enable-ipv4=true
+          - --enable-ipv6=false
+          - --cluster-name=k8s-cluster
+          - --identity-allocation-mode=kvstore
+          - --native-routing-cidr=10.0.0.0/8
+          - --enable-host-reachable-services=true
+          - --auto-direct-node-routes=true
         volumeMounts:
-        - mountPath: /var/lib/cilium
-          name: etcd-config
-        - mountPath: /etc/ssl/etcd
-          name: etcd-certs
+        - name: cilium-config
+          mountPath: /var/lib/cilium
+        - name: etcd-certs
+          mountPath: /etc/ssl/etcd
       volumes:
-      - name: etcd-config
+      - name: cilium-config
         configMap:
           name: combined-config
           items:
