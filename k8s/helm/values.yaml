@@ -29,24 +29,18 @@ grafana:
     port: 3000
 
 cilium:
-  enabled: true
-  image: cilium/cilium:stable
-  service:
-    port: 9090
-  kvstore:
-    type: etcd
-    configMap: cilium-etcd-config
   ipv4:
     enabled: true
   ipv6:
     enabled: false
-  remoteNodeIdentity: true
+  tunnel: vxlan
   clusterName: k8s-cluster
+  identityAllocationMode: crd
   nativeRoutingCIDR: 10.0.0.0/8
   hostReachableServices: true
   directNodeRoutes: true
-  identityAllocationMode: crd
-  tunnel: vxlan
+  kvstore:
+    configMap: cilium-etcd-config
 
 qiskit:
   image: elijun831/qiskit-on-docker:jupyterlab
