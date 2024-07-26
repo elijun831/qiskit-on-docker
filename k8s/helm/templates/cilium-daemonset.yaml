@@ -44,7 +44,7 @@ spec:
       volumes:
       - name: etcd-config
         configMap:
-          name: {{ .Values.cilium.kvstore.configMap }}
+          name: combined-config
           items:
           - key: etcd.config
             path: etcd-config.yaml
