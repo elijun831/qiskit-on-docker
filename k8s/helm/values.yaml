@@ -52,31 +52,6 @@ loki:
     type: ClusterIP
     port: 3100
 
-kiali:
-  service:
-    port: 20001
-  secret:
-    username: "admin"
-    passphrase: "admin"
-    signingKey: "some-signing-key"
-  image: "kiali/kiali:latest"
-  env:
-    - name: KIALI_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: kiali
-          key: username
-    - name: KIALI_PASSPHRASE
-      valueFrom:
-        secretKeyRef:
-          name: kiali
-          key: passphrase
-    - name: KIALI_SIGNING_KEY
-      valueFrom:
-        secretKeyRef:
-          name: kiali
-          key: signingKey
-
 jaeger:
   image: jaegertracing/all-in-one:latest
   service:
