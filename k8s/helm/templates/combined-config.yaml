@@ -138,3 +138,9 @@ data:
         target_match:
           severity: 'warning'
         equal: ['alertname', 'dev', 'instance']
+  etcd.config: |
+    endpoints:
+      - https://etcd-server:2379
+    ca-file: /etc/ssl/etcd/etcd-ca.pem
+    cert-file: /etc/ssl/etcd/etcd-client.pem
+    key-file: /etc/ssl/etcd/etcd-client-key.pem
