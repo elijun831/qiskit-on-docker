@@ -12,7 +12,7 @@ data:
         static_configs:
           - targets: ['localhost:9090']
   cilium.conf: |
-    debug: "false"
+    debug: "true"
     disable-envoy-version-check: "true"
     enable-ipv6: "false"
     enable-k8s-event-handover: "true"
@@ -33,6 +33,16 @@ data:
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
+    identity-allocation-mode: "crd"
+    kvstore-connectivity-timeout: "5m"
+    kvstore-lease-ttl: "30m"
+    resources:
+      requests:
+        cpu: "256m"
+        memory: "512Mi"
+      limits:
+        cpu: "512m"
+        memory: "1024Mi"
   etcd.config: |
     endpoints:
       - https://etcd-server:2379
