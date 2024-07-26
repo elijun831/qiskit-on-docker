@@ -20,7 +20,7 @@ spec:
         - cilium-agent
         args:
         - --kvstore=etcd
-        - --kvstore-opt=etcd.config=/var/lib/etcd-config/etcd.config
+        - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
         - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
         - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
         - --enable-remote-node-identity=true
@@ -35,17 +35,19 @@ spec:
         - name: CILIUM_KVSTORE
           value: "etcd"
         - name: CILIUM_KVSTORE_OPTIONS
-          value: "/var/lib/etcd-config/etcd.config"
+          value: "/var/lib/cilium/etcd-config.yaml"
         volumeMounts:
-        - mountPath: /var/lib/etcd-config
+        - mountPath: /var/lib/cilium
           name: etcd-config
         - mountPath: /etc/ssl/etcd
           name: etcd-certs
-          readOnly: true
       volumes:
       - name: etcd-config
         configMap:
           name: {{ .Values.cilium.kvstore.configMap }}
+          items:
+          - key: etcd.config
+            path: etcd-config.yaml
       - name: etcd-certs
         secret:
           secretName: etcd-certs
