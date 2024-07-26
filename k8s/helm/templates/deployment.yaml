@@ -194,56 +194,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}-kiali
-  labels:
-    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: {{ include "qiskit-monitoring.fullname" . }}-kiali
-  template:
-    metadata:
-      labels:
-        app: {{ include "qiskit-monitoring.fullname" . }}-kiali
-    spec:
-      containers:
-        - name: kiali
-          image: {{ .Values.kiali.image }}
-          ports:
-            - containerPort: {{ .Values.kiali.service.port }}
-          env:
-            - name: KIALI_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: kiali
-                  key: username
-            - name: KIALI_PASSPHRASE
-              valueFrom:
-                secretKeyRef:
-                  name: kiali
-                  key: passphrase
-            - name: KIALI_SIGNING_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: kiali
-                  key: signingKey
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}-kiali
-spec:
-  selector:
-    app: {{ include "qiskit-monitoring.fullname" . }}-kiali
-  ports:
-    - protocol: TCP
-      port: {{ .Values.kiali.service.port }}
-      targetPort: {{ .Values.kiali.service.port }}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
 spec:
   replicas: 1
