@@ -59,26 +59,37 @@ spec:
       labels:
         app: {{ include "qiskit-monitoring.fullname" . }}-cilium
     spec:
-      serviceAccountName: {{ .Values.serviceAccounts.cilium.name }}
       containers:
         - name: cilium
           image: {{ .Values.cilium.image }}
-          command: ["cilium-agent"]
+          args:
+            - --kvstore={{ .Values.cilium.kvstore.type }}
+            - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
+            - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
+            - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
+            - --tunnel={{ .Values.cilium.tunnel }}
+            - --cluster-name={{ .Values.cilium.clusterName }}
+            - --identity-allocation-mode={{ .Values.cilium.identityAllocationMode }}
+            - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
+            - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
+            - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
           ports:
             - containerPort: {{ .Values.cilium.service.port }}
-          securityContext:
-            privileged: true
           volumeMounts:
             - name: cilium-config
-              mountPath: /etc/cilium/cilium.conf
-              subPath: cilium.conf
+              mountPath: /var/lib/cilium
+            - name: etcd-certs
+              mountPath: /etc/ssl/etcd
       volumes:
         - name: cilium-config
           configMap:
-            name: {{ .Values.configMapName }}
+            name: combined-config
             items:
               - key: cilium.conf
                 path: cilium.conf
+        - name: etcd-certs
+          secret:
+            secretName: etcd-certs
 ---
 apiVersion: apps/v1
 kind: Deployment
