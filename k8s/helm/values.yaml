@@ -44,7 +44,7 @@ cilium:
   directNodeRoutes: true
   kvstore:
     type: etcd
-    configMap: cilium-etcd-config
+    configMap: combined-config
 
 qiskit:
   image: elijun831/qiskit-on-docker:jupyterlab
