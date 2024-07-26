@@ -38,7 +38,7 @@ cilium:
     enabled: false
   tunnel: vxlan
   clusterName: k8s-cluster
-  identityAllocationMode: kvstore 
+  identityAllocationMode: kvstore
   nativeRoutingCIDR: 10.0.0.0/8
   hostReachableServices: true
   directNodeRoutes: true
