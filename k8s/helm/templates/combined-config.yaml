@@ -12,11 +12,6 @@ data:
         static_configs:
           - targets: ['localhost:9090']
   cilium.conf: |
-    # Ensure kvstore is not set or is empty
-    kvstore: "etcd"
-    kvstore-opt: "{"etcd.config": "/var/lib/etcd-config/etcd.config"}"
-    identity-allocation-mode: "crd"
-    # Cilium configuration
     debug: "false"
     disable-envoy-version-check: "true"
     enable-ipv6: "false"
@@ -35,6 +30,9 @@ data:
     tunnel: "vxlan"
     k8s-heartbeat-timeout: "600s"
     k8s-sync-timeout: "60m"
+    kvstore: "etcd"
+    kvstore-opt:
+      etcd.config: "/var/lib/cilium/etcd-config.yaml"
   grafana.ini: |
     [paths]
     data = /var/lib/grafana/data
