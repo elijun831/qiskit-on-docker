@@ -29,10 +29,23 @@ grafana:
     port: 3000
 
 cilium:
-  image: cilium/cilium:stable
-  service:
-    type: ClusterIP
-    port: 9090
+  enabled: true
+  image:
+    repository: quay.io/cilium/cilium
+    tag: v1.15.7
+  kvstore:
+    type: etcd
+    configMap: cilium-etcd-config
+  ipv4:
+    enabled: true
+  ipv6:
+    enabled: false
+  clusterName: k8s-cluster
+  nativeRoutingCIDR: 10.0.0.0/8
+  hostReachableServices: true
+  directNodeRoutes: true
+  identityAllocationMode: crd
+  tunnel: vxlan
 
 qiskit:
   image: elijun831/qiskit-on-docker:jupyterlab
