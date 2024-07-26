@@ -1,13 +1,19 @@
-cilium:
-  kvstore:
-    configMap: etcd-config
-  ipv4:
-    enabled: true
-  ipv6:
-    enabled: false
-  tunnel: vxlan
-  clusterName: my-cluster
-  identityAllocationMode: crd
-  nativeRoutingCIDR: 10.0.0.0/8
-  hostReachableServices: true
-  directNodeRoutes: false
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.cilium.kvstore.configMap }}
+  namespace: kube-system
+data:
+  etcd.config: |
+    endpoints:
+      - https://etcd.example.com:2379
+    ca-file: /etc/ssl/etcd/etcd-ca.pem
+    cert-file: /etc/ssl/etcd/etcd-client.pem
+    key-file: /etc/ssl/etcd/etcd-client-key.pem
+    client-transport-security:
+      trusted-ca-file: /etc/ssl/etcd/etcd-ca.pem
+      cert-file: /etc/ssl/etcd/etcd-client.pem
+      key-file: /etc/ssl/etcd/etcd-client-key.pem
+    dial-timeout: 10s
+    read-timeout: 10s
+    write-timeout: 10s
