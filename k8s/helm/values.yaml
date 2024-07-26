@@ -30,9 +30,7 @@ grafana:
 
 cilium:
   enabled: true
-  image:
-    repository: quay.io/cilium/cilium
-    tag: v1.15.7
+  image: cilium/cilium:stable
   service:
     port: 9090
   kvstore:
