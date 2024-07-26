@@ -63,18 +63,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}-kiali
-spec:
-  selector:
-    app: {{ include "qiskit-monitoring.fullname" . }}-kiali
-  ports:
-    - protocol: TCP
-      port: {{ .Values.kiali.service.port }}
-      targetPort: {{ .Values.kiali.service.port }}
----
-apiVersion: v1
-kind: Service
-metadata:
   name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
 spec:
   selector:
