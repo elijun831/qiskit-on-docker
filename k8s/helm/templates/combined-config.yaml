@@ -12,6 +12,10 @@ data:
         static_configs:
           - targets: ['localhost:9090']
   cilium.conf: |
+    # Ensure kvstore is not set or is empty
+    kvstore: "etcd"
+    kvstore-opt: "{"etcd.config": "/var/lib/etcd-config/etcd.config"}"
+    identity-allocation-mode: "crd"
     # Cilium configuration
     debug: "false"
     disable-envoy-version-check: "true"
