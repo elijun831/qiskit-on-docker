@@ -1,0 +1,13 @@
+cilium:
+  kvstore:
+    configMap: etcd-config
+  ipv4:
+    enabled: true
+  ipv6:
+    enabled: false
+  tunnel: vxlan
+  clusterName: my-cluster
+  identityAllocationMode: crd
+  nativeRoutingCIDR: 10.0.0.0/8
+  hostReachableServices: true
+  directNodeRoutes: false
