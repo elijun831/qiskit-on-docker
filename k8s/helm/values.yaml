@@ -81,6 +81,9 @@ cilium:
   nativeRoutingCIDR: 10.0.0.0/8
   hostReachableServices: true
   directNodeRoutes: true
+  kvstore:
+    type: etcd
+    configMap: combined-config
 
 autoscaling:
   enabled: false
