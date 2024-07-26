@@ -35,12 +35,13 @@ spec:
         - name: CILIUM_KVSTORE
           value: "etcd"
         - name: CILIUM_KVSTORE_OPTIONS
-          value: "/var/lib/cilium/etcd-config.yaml"
+          value: "/var/lib/etcd-config/etcd.config"
         volumeMounts:
         - mountPath: /var/lib/etcd-config
           name: etcd-config
         - mountPath: /etc/ssl/etcd
           name: etcd-certs
+          readOnly: true
       volumes:
       - name: etcd-config
         configMap:
