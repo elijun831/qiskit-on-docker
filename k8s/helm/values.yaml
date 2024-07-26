@@ -29,6 +29,7 @@ grafana:
     port: 3000
 
 cilium:
+  image: "cilium/cilium:stable"
   service:
     port: 80 
   ipv4:
