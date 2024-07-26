@@ -30,15 +30,6 @@ data:
     tunnel: "vxlan"
     k8s-heartbeat-timeout: "600s"
     k8s-sync-timeout: "60m"
-    kvstore: "etcd"
-    kvstore-opt:
-      etcd.config: "/var/lib/cilium/etcd-config.yaml"
-  etcd.config: |
-    endpoints:
-      - https://etcd-server:2379
-    ca-file: /etc/ssl/etcd/etcd-ca.pem
-    cert-file: /etc/ssl/etcd/etcd-client.pem
-    key-file: /etc/ssl/etcd/etcd-client-key.pem
   grafana.ini: |
     [paths]
     data = /var/lib/grafana/data
