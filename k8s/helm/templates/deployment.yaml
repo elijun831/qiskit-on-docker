@@ -62,17 +62,21 @@ spec:
       containers:
         - name: cilium
           image: {{ .Values.cilium.image }}
-          args:
-            - --kvstore={{ .Values.cilium.kvstore.type }}
-            - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
-            - --enable-ipv4={{ .Values.cilium.ipv4.enabled }}
-            - --enable-ipv6={{ .Values.cilium.ipv6.enabled }}
-            - --tunnel={{ .Values.cilium.tunnel }}
-            - --cluster-name={{ .Values.cilium.clusterName }}
-            - --identity-allocation-mode={{ .Values.cilium.identityAllocationMode }}
-            - --native-routing-cidr={{ .Values.cilium.nativeRoutingCIDR }}
-            - --enable-host-reachable-services={{ .Values.cilium.hostReachableServices }}
-            - --auto-direct-node-routes={{ .Values.cilium.directNodeRoutes }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cilium-agent \
+              --kvstore=etcd \
+              --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml \
+              --enable-ipv4=true \
+              --enable-ipv6=false \
+              --tunnel=vxlan \
+              --cluster-name=k8s-cluster \
+              --identity-allocation-mode=kvstore \
+              --native-routing-cidr=10.0.0.0/8 \
+              --enable-host-reachable-services=true \
+              --auto-direct-node-routes=true
           ports:
             - containerPort: {{ .Values.cilium.service.port }}
           volumeMounts:
