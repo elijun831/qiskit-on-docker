@@ -33,6 +33,12 @@ data:
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
+  etcd.config: |
+    endpoints:
+      - https://etcd-server:2379
+    ca-file: /etc/ssl/etcd/etcd-ca.pem
+    cert-file: /etc/ssl/etcd/etcd-client.pem
+    key-file: /etc/ssl/etcd/etcd-client-key.pem
   grafana.ini: |
     [paths]
     data = /var/lib/grafana/data
@@ -138,9 +144,3 @@ data:
         target_match:
           severity: 'warning'
         equal: ['alertname', 'dev', 'instance']
-  etcd.config: |
-    endpoints:
-      - https://etcd-server:2379
-    ca-file: /etc/ssl/etcd/etcd-ca.pem
-    cert-file: /etc/ssl/etcd/etcd-client.pem
-    key-file: /etc/ssl/etcd/etcd-client-key.pem
