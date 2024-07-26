@@ -31,18 +31,19 @@ grafana:
 cilium:
   image: "cilium/cilium:stable"
   service:
-    port: 80 
+    port: 80
   ipv4:
     enabled: true
   ipv6:
     enabled: false
   tunnel: vxlan
   clusterName: k8s-cluster
-  identityAllocationMode: crd
+  identityAllocationMode: kvstore 
   nativeRoutingCIDR: 10.0.0.0/8
   hostReachableServices: true
   directNodeRoutes: true
   kvstore:
+    type: etcd
     configMap: cilium-etcd-config
 
 qiskit:
