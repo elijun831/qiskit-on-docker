@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: cilium
-        image: quay.io/cilium/cilium:v1.16.0
+        image: quay.io/cilium/cilium:latest
         args:
         - cilium-agent
         - --kvstore=etcd
@@ -30,6 +30,12 @@ spec:
           name: cilium-config
         - mountPath: /etc/ssl/etcd
           name: etcd-certs
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          capabilities:
+            add: ["NET_ADMIN", "SYS_ADMIN"]
       volumes:
       - configMap:
           name: combined-config
