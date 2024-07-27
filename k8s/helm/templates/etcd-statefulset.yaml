@@ -30,7 +30,10 @@ spec:
       initContainers:
       - name: init-permissions
         image: busybox:1.31
-        command: ["sh", "-c", "chmod -R 700 /var/lib/etcd"]
+        command:
+        - sh
+        - -c
+        - chmod -R 700 /var/lib/etcd
         volumeMounts:
         - name: data
           mountPath: /var/lib/etcd
@@ -40,6 +43,11 @@ spec:
         ports:
         - containerPort: 2379
           name: client
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         volumeMounts:
         - name: data
           mountPath: /var/lib/etcd
