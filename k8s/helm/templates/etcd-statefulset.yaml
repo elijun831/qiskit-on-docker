@@ -52,7 +52,7 @@ spec:
         - name: data
           mountPath: /var/lib/etcd
         command:
-        - /usr/local/bin/etcd
+        - /opt/bitnami/etcd/bin/etcd
         args:
         - --data-dir=/var/lib/etcd
         - --name=$(POD_NAME)
