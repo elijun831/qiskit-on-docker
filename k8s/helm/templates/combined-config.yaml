@@ -12,42 +12,24 @@ data:
         static_configs:
           - targets: ['localhost:9090']
   cilium.conf: |
-    debug: "true"
-    disable-envoy-version-check: "true"
+    debug: "false"
+    disable-ipv4: "false"
+    sidecar-http-proxy: "false"
     enable-ipv6: "false"
-    enable-k8s-event-handover: "true"
-    enable-l7-proxy: "true"
-    enable-node-port: "true"
-    enable-remote-node-identity: "true"
-    enable-well-known-identities: "true"
-    ipam: "cluster-pool"
-    kube-proxy-replacement: "strict"
-    masquerade: "true"
-    monitor-aggregation: "low"
-    preallocate-bpf-maps: "true"
-    sidecar-istio-proxy-image: "cilium/istio_proxy"
-    tunnel: "vxlan"
-    k8s-heartbeat-timeout: "600s"
-    k8s-sync-timeout: "60m"
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
-    identity-allocation-mode: "crd"
-    kvstore-connectivity-timeout: "5m"
-    kvstore-lease-ttl: "30m"
-    resources:
-      requests:
-        cpu: "256m"
-        memory: "512Mi"
-      limits:
-        cpu: "512m"
-        memory: "1024Mi"
-  etcd.config: |
+    cluster-name: "k8s-cluster"
+    identity-allocation-mode: "kvstore"
+    enable-host-reachable-services: "true"
+    auto-direct-node-routes: "true"
+  etcd-config.yaml: |-
+    ---
     endpoints:
-      - https://etcd-server:2379
-    ca-file: /etc/ssl/etcd/etcd-ca.pem
-    cert-file: /etc/ssl/etcd/etcd-client.pem
-    key-file: /etc/ssl/etcd/etcd-client-key.pem
+    - https://192.168.49.2:2379
+    ca-file: '/var/lib/etcd-secrets/etcd-ca'
+    key-file: '/var/lib/etcd-secrets/etcd-client-key'
+    cert-file: '/var/lib/etcd-secrets/etcd-client-crt'
   grafana.ini: |
     [paths]
     data = /var/lib/grafana/data
