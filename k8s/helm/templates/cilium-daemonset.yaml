@@ -17,6 +17,8 @@ spec:
       containers:
       - name: cilium
         image: cilium/cilium:stable
+        command:
+          - cilium-agent
         args:
           - --kvstore=etcd
           - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
