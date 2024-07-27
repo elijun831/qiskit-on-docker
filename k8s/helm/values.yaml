@@ -9,6 +9,22 @@ serviceAccounts:
     annotations: {}
     automount: true
 
+etcd:
+  image: bitnami/etcd:latest
+  replicaCount: 1
+  storage: 1Gi
+  service:
+    type: ClusterIP
+    port: 2379
+  resources:
+    requests:
+      cpu: "256m"
+      memory: "512Mi"
+    limits:
+      cpu: "512m"
+      memory: "1024Mi"
+  persistentVolumeAccessMode: ReadWriteOnce
+
 prometheus:
   image: prom/prometheus:latest
   nodeExporter:
