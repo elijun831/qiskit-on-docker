@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: cilium
-        image: quay.io/cilium/cilium:latest
+        image: bitnami/cilium:latest
         args:
         - cilium-agent
         - --kvstore=etcd
