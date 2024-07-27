@@ -19,7 +19,7 @@ spec:
       hostNetwork: true
       containers:
       - name: cilium
-        image: bitnami/cilium:latest
+        image: cilium/cilium:stable
         args:
         - cilium-agent
         - --config=/var/lib/cilium/cilium.conf
