@@ -34,6 +34,10 @@ spec:
         - sh
         - -c
         - chmod -R 700 /var/lib/etcd
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
         volumeMounts:
         - name: data
           mountPath: /var/lib/etcd
@@ -62,6 +66,10 @@ spec:
         - --advertise-client-urls=http://$(POD_NAME).etcd.default.svc.cluster.local:2379
         - --initial-cluster=$(POD_NAME)=http://$(POD_NAME).etcd.default.svc.cluster.local:2380
         - --initial-cluster-state=new
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
   volumeClaimTemplates:
   - metadata:
       name: data
