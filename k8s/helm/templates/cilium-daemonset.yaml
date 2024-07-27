@@ -1,8 +1,12 @@
-apiVersion: apps/v1
-kind: DaemonSet
 metadata:
   name: control-qiskit-monitoring-cilium
-  namespace: default
+  namespace: kube-system
+  labels:
+    app: control-qiskit-monitoring-cilium
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "control"
+    meta.helm.sh/release-namespace: "default"
 spec:
   selector:
     matchLabels:
@@ -12,33 +16,31 @@ spec:
       labels:
         app: control-qiskit-monitoring-cilium
     spec:
+      hostNetwork: true
       containers:
       - name: cilium
         image: bitnami/cilium:latest
         args:
         - cilium-agent
-        - --kvstore=etcd
-        - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
-        - --enable-ipv4=true
-        - --enable-ipv6=false
-        - --cluster-name=k8s-cluster
-        - --identity-allocation-mode=kvstore
-        - --enable-host-reachable-services=true
-        - --auto-direct-node-routes=true
+        - --config=/var/lib/cilium/cilium.conf
         volumeMounts:
         - mountPath: /var/lib/cilium
           name: cilium-config
         - mountPath: /etc/ssl/etcd
           name: etcd-certs
         securityContext:
+          privileged: true
           runAsUser: 0
           runAsGroup: 0
           runAsNonRoot: false
-          capabilities:
-            add: ["NET_ADMIN", "SYS_ADMIN"]
       volumes:
       - configMap:
           name: combined-config
+          items:
+            - key: cilium.conf
+              path: cilium.conf
+            - key: etcd-config.yaml
+              path: etcd-config.yaml
         name: cilium-config
       - name: etcd-certs
         secret:
