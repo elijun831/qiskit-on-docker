@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: etcd
-  namespace: kube-system
+  namespace: default
 spec:
   ports:
   - port: 2379
@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: etcd
-  namespace: kube-system
+  namespace: default
 spec:
   serviceName: "etcd"
   replicas: 1
@@ -48,11 +48,11 @@ spec:
         args:
         - --data-dir=/var/lib/etcd
         - --name=$(POD_NAME)
-        - --initial-advertise-peer-urls=http://$(POD_NAME).etcd.kube-system.svc.cluster.local:2380
+        - --initial-advertise-peer-urls=http://$(POD_NAME).etcd.default.svc.cluster.local:2380
         - --listen-peer-urls=http://0.0.0.0:2380
         - --listen-client-urls=http://0.0.0.0:2379
-        - --advertise-client-urls=http://$(POD_NAME).etcd.kube-system.svc.cluster.local:2379
-        - --initial-cluster=$(POD_NAME)=http://$(POD_NAME).etcd.kube-system.svc.cluster.local:2380
+        - --advertise-client-urls=http://$(POD_NAME).etcd.default.svc.cluster.local:2379
+        - --initial-cluster=$(POD_NAME)=http://$(POD_NAME).etcd.default.svc.cluster.local:2380
         - --initial-cluster-state=new
   volumeClaimTemplates:
   - metadata:
