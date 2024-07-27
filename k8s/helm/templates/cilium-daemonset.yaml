@@ -1,3 +1,5 @@
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
   name: control-qiskit-monitoring-cilium
   namespace: kube-system
