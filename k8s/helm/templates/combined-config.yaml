@@ -37,7 +37,7 @@ data:
   etcd-config.yaml: |-
     ---
     endpoints:
-    - https://192.168.49.2:2379
+      - {{ .Values.etcdEndpoint }}
     ca-file: '/var/lib/etcd-secrets/etcd-ca'
     key-file: '/var/lib/etcd-secrets/etcd-client-key'
     cert-file: '/var/lib/etcd-secrets/etcd-client-crt'
