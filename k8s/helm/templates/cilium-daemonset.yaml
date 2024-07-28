@@ -30,7 +30,7 @@ spec:
         - --kvstore=etcd
         - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
         - --enable-ipv4=true
-        - --enable-ipv6=false
+        - --enable-ipv6=true
         - --cluster-name=k8s-cluster
         - --identity-allocation-mode=kvstore
         - --enable-host-reachable-services=true
@@ -63,7 +63,7 @@ spec:
           items:
             - key: cilium.conf
               path: cilium.conf
-            - key: etcd-config.yaml
+            - key: etcd.config
               path: etcd-config.yaml
         name: cilium-config
       - name: etcd-certs
