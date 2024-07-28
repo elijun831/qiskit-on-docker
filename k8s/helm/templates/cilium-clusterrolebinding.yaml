@@ -1,3 +1,4 @@
+# cilium-clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -11,7 +12,7 @@ subjects:
   - kind: ServiceAccount
     name: cilium
     namespace: kube-system
-rules:
-- apiGroups: ["*"]
-  resources: ["*"]
-  verbs: ["*"]
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cilium
