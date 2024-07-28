@@ -1,90 +1,33 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: control-qiskit-monitoring-cilium
+  name: cilium
   namespace: kube-system
-  labels:
-    app: control-qiskit-monitoring-cilium
-    app.kubernetes.io/managed-by: "Helm"
-  annotations:
-    meta.helm.sh/release-name: "control"
-    meta.helm.sh/release-namespace: "default"
 spec:
   selector:
     matchLabels:
-      app: control-qiskit-monitoring-cilium
+      k8s-app: cilium
   template:
     metadata:
       labels:
-        app: control-qiskit-monitoring-cilium
-        app.kubernetes.io/name: cilium-agent
-        app.kubernetes.io/part-of: cilium
+        k8s-app: cilium
     spec:
-      hostNetwork: true
       containers:
-      - name: cilium
-        image: cilium/cilium:stable
-        args:
-        - cilium-agent
-        - --config-dir=/tmp/cilium/config-map
-        - --kvstore=etcd
-        - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
-        - --enable-ipv4=true
-        - --enable-ipv6=true
-        - --cluster-name=k8s-cluster
-        - --identity-allocation-mode=kvstore
-        - --enable-host-reachable-services=true
-        - --auto-direct-node-routes=true
-        volumeMounts:
-        - mountPath: /var/lib/cilium
-          name: cilium-config
-        - mountPath: /etc/ssl/etcd
-          name: etcd-certs
-        - mountPath: /sys/fs/bpf
-          name: bpf-maps
-          mountPropagation: HostToContainer
-        - mountPath: /host/proc/sys/net
-          name: host-proc-sys-net
-        - mountPath: /host/proc/sys/kernel
-          name: host-proc-sys-kernel
-        - mountPath: /lib/modules
-          name: lib-modules
-          readOnly: true
-        - mountPath: /var/run/cilium
-          name: cilium-run
-        securityContext:
-          privileged: true
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
+        - name: cilium-agent
+          image: quay.io/cilium/cilium:v1.10
+          env:
+            - name: CILIUM_CONF
+              value: /etc/cilium/cilium.conf
+          volumeMounts:
+            - name: cilium-config
+              mountPath: /etc/cilium/cilium.conf
+              subPath: cilium.conf
+            - name: etcd-certs
+              mountPath: /etc/ssl/etcd
       volumes:
-      - configMap:
-          name: combined-config
-          items:
-            - key: cilium.conf
-              path: cilium.conf
-            - key: etcd.config
-              path: etcd-config.yaml
-        name: cilium-config
-      - name: etcd-certs
-        secret:
-          secretName: etcd-certs
-      - name: bpf-maps
-        hostPath:
-          path: /sys/fs/bpf
-          type: DirectoryOrCreate
-      - name: host-proc-sys-net
-        hostPath:
-          path: /proc/sys/net
-          type: Directory
-      - name: host-proc-sys-kernel
-        hostPath:
-          path: /proc/sys/kernel
-          type: Directory
-      - name: lib-modules
-        hostPath:
-          path: /lib/modules
-      - name: cilium-run
-        hostPath:
-          path: /var/run/cilium
-          type: DirectoryOrCreate
+        - name: cilium-config
+          configMap:
+            name: combined-config
+        - name: etcd-certs
+          secret:
+            secretName: etcd-certs
