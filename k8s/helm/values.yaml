@@ -83,7 +83,7 @@ ingress:
   tls: []
 
 cilium:
-  image: "cilium/cilium:stable"
+  image: "quay.io/cilium/cilium:stable"
   service:
     port: 80
   ipv4:
