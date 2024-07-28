@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.10
+          image: quay.io/cilium/cilium:stable
           env:
             - name: CILIUM_CONF
               value: /etc/cilium/cilium.conf
