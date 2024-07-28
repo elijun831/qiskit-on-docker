@@ -30,6 +30,7 @@ data:
     tunnel: "vxlan"
     k8s-heartbeat-timeout: "3600s"
     k8s-sync-timeout: "60m"
+    identity-allocation-mode: "kvstore"
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
