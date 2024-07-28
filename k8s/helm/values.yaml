@@ -24,6 +24,7 @@ etcd:
       cpu: "512m"
       memory: "1024Mi"
   persistentVolumeAccessMode: ReadWriteOnce
+  etcdEndpoint: "https://etcd-server:2379"
 
 prometheus:
   image: prom/prometheus:latest
