@@ -10,7 +10,7 @@ serviceAccounts:
     automount: true
 
 etcd:
-  image: bitnami/etcd:latest
+  image: "bitnami/etcd:latest"
   replicaCount: 1
   storage: 1Gi
   service:
@@ -27,7 +27,7 @@ etcd:
   etcdEndpoint: "https://etcd-server:2379"
 
 prometheus:
-  image: prom/prometheus:latest
+  image: "prom/prometheus:latest"
   nodeExporter:
     enabled: true
   cAdvisor:
@@ -37,38 +37,38 @@ prometheus:
     port: 9090
 
 grafana:
-  image: grafana/grafana:latest
-  adminPassword: admin
+  image: "grafana/grafana:latest"
+  adminPassword: "admin"
   service:
     type: ClusterIP
     port: 3000
 
 qiskit:
-  image: elijun831/qiskit-on-docker:jupyterlab
+  image: "elijun831/qiskit-on-docker:jupyterlab"
   service:
     type: ClusterIP
     port: 8888
 
 alertmanager:
-  image: prom/alertmanager:latest
+  image: "prom/alertmanager:latest"
   service:
     type: ClusterIP
     port: 9093
 
 loki:
-  image: grafana/loki:main
+  image: "grafana/loki:main"
   service:
     type: ClusterIP
     port: 3100
 
 jaeger:
-  image: jaegertracing/all-in-one:latest
+  image: "jaegertracing/all-in-one:latest"
   service:
     type: ClusterIP
     port: 16686
 
 trivy:
-  image: aquasec/trivy:latest
+  image: "aquasec/trivy:latest"
   schedule: "0 0 * * *"  # Set to scan every day at midnight
   targetImage: "elijun831/qiskit-on-docker:jupyterlab"  # Target image to scan
   reportDirectory: "/reports"  # Directory to store scan reports
@@ -90,21 +90,21 @@ cilium:
     enabled: true
   ipv6:
     enabled: false
-  tunnel: vxlan
-  clusterName: k8s-cluster
-  identityAllocationMode: kvstore
-  nativeRoutingCIDR: 10.0.0.0/8
+  tunnel: "vxlan"
+  clusterName: "k8s-cluster"
+  identityAllocationMode: "kvstore"
+  nativeRoutingCIDR: "10.0.0.0/8"
   hostReachableServices: true
   directNodeRoutes: true
   kvstore:
-    type: etcd
-    configMap: combined-config
+    type: "etcd"
+    configMap: "combined-config"
     etcd:
       endpoints:
-        - https://etcd-server:2379
-      caFile: /etc/ssl/etcd/etcd-ca.pem
-      certFile: /etc/ssl/etcd/etcd-client.pem
-      keyFile: /etc/ssl/etcd/etcd-client-key.pem
+        - "https://etcd-server:2379"
+      caFile: "/etc/ssl/etcd/etcd-ca.pem"
+      certFile: "/etc/ssl/etcd/etcd-client.pem"
+      keyFile: "/etc/ssl/etcd/etcd-client-key.pem"
 
 autoscaling:
   enabled: false
