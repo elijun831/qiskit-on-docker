@@ -12,17 +12,27 @@ data:
         static_configs:
           - targets: ['localhost:9090']
   cilium.conf: |
-    debug: "false"
-    disable-ipv4: "false"
-    sidecar-http-proxy: "false"
-    enable-ipv6: "false"
+    debug: "true"
+    disable-envoy-version-check: "true"
+    enable-ipv6: "true"
+    enable-k8s-event-handover: "true"
+    enable-l7-proxy: "true"
+    enable-node-port: "true"
+    enable-remote-node-identity: "true"
+    enable-well-known-identities: "true"
+    ipam: "cluster-pool"
+    kube-proxy-replacement: "strict"
+    masquerade: "true"
+    monitor-aggregation: "low"
+    native-routing-cidr: "10.0.0.0/8"
+    preallocate-bpf-maps: "true"
+    sidecar-istio-proxy-image: "cilium/istio_proxy"
+    tunnel: "vxlan"
+    k8s-heartbeat-timeout: "3600s"
+    k8s-sync-timeout: "60m"
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
-    cluster-name: "k8s-cluster"
-    identity-allocation-mode: "kvstore"
-    enable-host-reachable-services: "true"
-    auto-direct-node-routes: "true"
   etcd-config.yaml: |-
     ---
     endpoints:
