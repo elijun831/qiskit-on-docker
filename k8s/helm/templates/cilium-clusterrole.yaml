@@ -1,14 +1,19 @@
-# cilium-clusterrole.yaml
+{{- if and .Values.preflight.enabled .Values.rbac.create }}
+{{- /*
+Keep file in sync with cilium-agent/clusterrole.yaml
+*/ -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cilium-admin
-  labels:
-    app.kubernetes.io/managed-by: Helm
+  name: cilium-pre-flight
+  {{- with .Values.preflight.annotations }}
   annotations:
-    meta.helm.sh/release-name: control
-    meta.helm.sh/release-namespace: default
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/part-of: cilium
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
   verbs: ["*"]
+{{- end }}
