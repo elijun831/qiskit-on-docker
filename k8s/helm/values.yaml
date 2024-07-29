@@ -1,5 +1,8 @@
 serviceAccounts:
   create: true
+  preflight:
+    name: "cilium-preflight-sa"
+    automount: true
   qiskitOnDocker:
     name: "qiskit-on-docker-service-account"
     annotations: {}
@@ -109,26 +112,26 @@ cilium:
 preflight:
   enabled: true
   validateCNPs: true
-  image: "cilium/cilium:v1.9.10"
+  annotations: {}
+  podAnnotations: {}
+  podLabels: {}
+  image: "quay.io/cilium/cilium:v1.10.4"
   imagePullPolicy: IfNotPresent
   readinessProbe:
     initialDelaySeconds: 5
     periodSeconds: 5
-  serviceAccounts:
-    preflight:
-      name: cilium-pre-flight
-      automount: true
+  extraVolumeMounts: []
+  extraEnv: []
+  resources: {}
+  extraVolumes: []
+  priorityClassName: ""
   terminationGracePeriodSeconds: 30
   affinity: {}
   nodeSelector: {}
   tolerations: []
-  podAnnotations: {}
-  podLabels: {}
-  extraEnv: []
-  extraVolumeMounts: []
-  extraVolumes: []
-  priorityClassName: ""
-  annotations: {}
+
+k8sServiceHost: "kubernetes.default.svc"
+k8sServicePort: "443"
 
 autoscaling:
   enabled: false
