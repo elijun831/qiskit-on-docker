@@ -266,7 +266,7 @@ spec:
           restartPolicy: OnFailure
           volumes:
             - name: report-volume
-              emptyDir: {} 
+              emptyDir: {}
 ---
 {{- if and .Values.preflight.enabled .Values.preflight.validateCNPs }}
 apiVersion: apps/v1
@@ -348,20 +348,20 @@ spec:
           {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
       volumes:
-      - name: cilium-config
-        configMap:
-          name: combined-config
-          items:
-            - key: cilium.conf
-              path: cilium.conf
-            - key: etcd-config.yaml
-              path: etcd-config.yaml
-      - name: etcd-certs
-        secret:
-          secretName: etcd-certs
-      {{- with .Values.preflight.extraVolumes }}
-      {{- toYaml . | trim | nindent 6 }}
-      {{- end }}
+        - name: cilium-config
+          configMap:
+            name: combined-config
+            items:
+              - key: cilium.conf
+                path: cilium.conf
+              - key: etcd-config.yaml
+                path: etcd-config.yaml
+        - name: etcd-certs
+          secret:
+            secretName: etcd-certs
+        {{- with .Values.preflight.extraVolumes }}
+        {{- toYaml . | trim | nindent 6 }}
+        {{- end }}
       hostNetwork: true
       restartPolicy: Always
       priorityClassName: {{ default "" .Values.preflight.priorityClassName }}
@@ -374,10 +374,10 @@ spec:
       {{- end }}
       {{- with .Values.preflight.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | trim | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.preflight.tolerations }}
       tolerations:
-        {{- toYaml . | trim | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end }}
