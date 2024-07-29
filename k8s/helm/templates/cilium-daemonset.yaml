@@ -48,6 +48,7 @@ spec:
         - name: etcd-certs
           secret:
             secretName: etcd-certs
+---
 {{- if and .Values.preflight.enabled .Values.preflight.validateCNPs }}
 apiVersion: apps/v1
 kind: Deployment
