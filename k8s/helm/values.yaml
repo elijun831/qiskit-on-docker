@@ -109,34 +109,26 @@ cilium:
 preflight:
   enabled: true
   validateCNPs: true
-  podDisruptionBudget:
-    enabled: true
-    maxUnavailable: 1
-    minAvailable: 1
-  annotations: {}
-  podAnnotations: {}
-  podLabels: {}
-  image:
-    pullPolicy: IfNotPresent
+  image: "cilium/cilium:v1.9.10"
+  imagePullPolicy: IfNotPresent
   readinessProbe:
     initialDelaySeconds: 5
     periodSeconds: 5
-  extraVolumeMounts: []
-  extraEnv: []
-  resources: {}
-  extraVolumes: []
+  serviceAccounts:
+    preflight:
+      name: cilium-pre-flight
+      automount: true
+  terminationGracePeriodSeconds: 30
   affinity: {}
   nodeSelector: {}
   tolerations: []
-  terminationGracePeriodSeconds: 30
-  priorityClassName: system-cluster-critical
-  serviceAccounts:
-    preflight:
-      name: preflight-service-account
-      automount: true
-  etcd:
-    enabled: true
-    ssl: true
+  podAnnotations: {}
+  podLabels: {}
+  extraEnv: []
+  extraVolumeMounts: []
+  extraVolumes: []
+  priorityClassName: ""
+  annotations: {}
 
 autoscaling:
   enabled: false
