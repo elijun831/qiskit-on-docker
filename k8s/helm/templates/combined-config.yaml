@@ -34,7 +34,7 @@ data:
     kvstore: "etcd"
     kvstore-opt:
       etcd.config: "/var/lib/cilium/etcd-config.yaml"
-  etcd-config.yaml: |-
+  etcd-config.yaml: |
     ---
     endpoints:
       - {{ .Values.etcdEndpoint }}
