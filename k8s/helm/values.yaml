@@ -129,6 +129,10 @@ preflight:
   affinity: {}
   nodeSelector: {}
   tolerations: []
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+    minAvailable: null
 
 k8sServiceHost: "kubernetes.default.svc"
 k8sServicePort: "443"
