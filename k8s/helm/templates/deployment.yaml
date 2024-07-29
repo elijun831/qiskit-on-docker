@@ -308,7 +308,7 @@ spec:
       containers:
         - name: cnp-validator
           image: {{ .Values.preflight.image }}
-          imagePullPolicy: {{ .Values.preflight.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.preflight.imagePullPolicy }}
           command: ["/bin/sh"]
           args:
           - -ec
@@ -364,9 +364,9 @@ spec:
       {{- end }}
       hostNetwork: true
       restartPolicy: Always
-      priorityClassName: {{ .Values.preflight.priorityClassName }}
-      serviceAccountName: {{ .Values.serviceAccounts.preflight.name | quote }}
-      automountServiceAccountToken: {{ .Values.serviceAccounts.preflight.automount }}
+      priorityClassName: {{ default "" .Values.preflight.priorityClassName }}
+      serviceAccountName: {{ default "default" .Values.serviceAccounts.preflight.name | quote }}
+      automountServiceAccountToken: {{ default true .Values.serviceAccounts.preflight.automount }}
       terminationGracePeriodSeconds: {{ .Values.preflight.terminationGracePeriodSeconds }}
       {{- with .Values.preflight.affinity }}
       affinity:
