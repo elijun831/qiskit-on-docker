@@ -20,7 +20,7 @@ spec:
             - --kvstore=etcd
             - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
             - --enable-ipv4=true
-            - --enable-ipv6=false
+            - --enable-ipv6=true
             - --tunnel=vxlan
             - --cluster-name=k8s-cluster
             - --identity-allocation-mode=kvstore
