@@ -137,6 +137,9 @@ preflight:
 agent:
   enabled: true
 
+rbac:
+  create: true
+
 k8sServiceHost: "kubernetes.default.svc"
 k8sServicePort: "443"
 
