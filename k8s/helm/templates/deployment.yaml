@@ -311,57 +311,57 @@ spec:
           imagePullPolicy: {{ .Values.preflight.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
-            - -ec
-            - |
-              cilium-dbg preflight validate-cnp;
-              touch /tmp/ready-validate-cnp;
-              sleep 1h;
+          - -ec
+          - |
+            cilium-dbg preflight validate-cnp;
+            touch /tmp/ready-validate-cnp;
+            sleep 1h;
           readinessProbe:
             exec:
               command:
-                - cat
-                - /tmp/ready-validate-cnp
+              - cat
+              - /tmp/ready-validate-cnp
             initialDelaySeconds: {{ .Values.preflight.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.preflight.readinessProbe.periodSeconds }}
           volumeMounts:
-            - name: cilium-config
-              mountPath: /etc/cilium/cilium.conf
-              subPath: cilium.conf
-            - name: etcd-certs
-              mountPath: /etc/ssl/etcd
-            {{- with .Values.preflight.extraVolumeMounts }}
-            {{- toYaml . | nindent 10 }}
-            {{- end }}
+          - name: cilium-config
+            mountPath: /etc/cilium/cilium.conf
+            subPath: cilium.conf
+          - name: etcd-certs
+            mountPath: /etc/ssl/etcd
+          {{- with .Values.preflight.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
           env:
-            {{- if .Values.k8sServiceHost }}
-            - name: KUBERNETES_SERVICE_HOST
-              value: {{ include "k8sServiceHost" . }}
-            - name: KUBERNETES_SERVICE_PORT
-              value: {{ include "k8sServicePort" . }}
-            {{- end }}
-            {{- with .Values.preflight.extraEnv }}
-            {{- toYaml . | trim | nindent 10 }}
-            {{- end }}
+          {{- if .Values.k8sServiceHost }}
+          - name: KUBERNETES_SERVICE_HOST
+            value: {{ include "k8sServiceHost" . }}
+          - name: KUBERNETES_SERVICE_PORT
+            value: {{ include "k8sServicePort" . }}
+          {{- end }}
+          {{- with .Values.preflight.extraEnv }}
+          {{- toYaml . | trim | nindent 10 }}
+          {{- end }}
           {{- with .Values.preflight.resources }}
           resources:
             {{- toYaml . | trim | nindent 12 }}
           {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
       volumes:
-        - name: cilium-config
-          configMap:
-            name: combined-config
-            items:
-              - key: cilium.conf
-                path: cilium.conf
-              - key: etcd-config.yaml
-                path: etcd-config.yaml
-        - name: etcd-certs
-          secret:
-            secretName: etcd-certs
-        {{- with .Values.preflight.extraVolumes }}
-        {{- toYaml . | trim | nindent 6 }}
-        {{- end }}
+      - name: cilium-config
+        configMap:
+          name: combined-config
+          items:
+            - key: cilium.conf
+              path: cilium.conf
+            - key: etcd-config.yaml
+              path: etcd-config.yaml
+      - name: etcd-certs
+        secret:
+          secretName: etcd-certs
+      {{- with .Values.preflight.extraVolumes }}
+      {{- toYaml . | trim | nindent 6 }}
+      {{- end }}
       hostNetwork: true
       restartPolicy: Always
       priorityClassName: {{ include "cilium.priorityClass" (list $ .Values.preflight.priorityClassName "system-cluster-critical") }}
