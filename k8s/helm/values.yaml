@@ -134,6 +134,9 @@ preflight:
     maxUnavailable: 1
     minAvailable: null
 
+agent:
+  enabled: true
+
 k8sServiceHost: "kubernetes.default.svc"
 k8sServicePort: "443"
 
