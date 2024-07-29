@@ -142,3 +142,9 @@ rbac:
 
 k8sServiceHost: "kubernetes.default.svc"
 k8sServicePort: "443"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
