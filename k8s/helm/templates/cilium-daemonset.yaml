@@ -20,7 +20,7 @@ spec:
             - --kvstore=etcd
             - --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml
             - --enable-ipv4=true
-            - --enable-ipv6=true
+            - --enable-ipv6=false
             - --tunnel=vxlan
             - --cluster-name=k8s-cluster
             - --identity-allocation-mode=kvstore
@@ -50,6 +50,7 @@ spec:
             secretName: etcd-certs
 
 {{- if .Values.preflight.enabled }}
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -159,6 +160,7 @@ spec:
         - name: cilium-pre-flight-fqdn-precache
           image: {{ include "cilium.image" .Values.preflight.image | quote }}
           imagePullPolicy: {{ .Values.preflight.image.pullPolicy }}
+          name: cilium-pre-flight-fqdn-precache
           command: ["/bin/sh"]
           args:
           - -ec
@@ -236,29 +238,30 @@ spec:
         hostPath:
           path: /var/run/cilium
           type: DirectoryOrCreate
-      - name: bpf-maps
-        hostPath:
-          path: /sys/fs/bpf
-          type: DirectoryOrCreate
-      {{- if .Values.etcd.enabled }}
+        - name: bpf-maps
+          hostPath:
+            path: /sys/fs/bpf
+            type: DirectoryOrCreate
+        {{- if .Values.etcd.enabled }}
         # To read the etcd config stored in config maps
-      - name: etcd-config-path
-        configMap:
-          name: combined-config
-      defaultMode: 0400
-      items:
-      - key: etcd-config.yaml
-        path: etcd.config
-    # To read the k8s etcd secrets in case the user might want to use TLS
-  {{- if .Values.etcd.ssl }}
-  - name: etcd-secrets
-    secret:
-      secretName: etcd-certs
-      # note: the leading zero means this number is in octal representation: do not remove it
-      defaultMode: 0400
-      optional: true
-  {{- end }}
-  {{- with .Values.preflight.extraVolumes }}
-  {{- toYaml . | nindent 6 }}
-  {{- end }}
-  {{- end }}
+        - name: etcd-config-path
+          configMap:
+            name: combined-config
+            defaultMode: 0400
+            items:
+              - key: etcd-config.yaml
+                path: etcd.config
+        # To read the k8s etcd secrets in case the user might want to use TLS
+        {{- if .Values.etcd.ssl }}
+        - name: etcd-secrets
+          secret:
+            secretName: etcd-certs
+            # note: the leading zero means this number is in octal representation: do not remove it
+            defaultMode: 0400
+            optional: true
+        {{- end }}
+        {{- with .Values.preflight.extraVolumes }}
+        {{- toYaml . | nindent 6 }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
