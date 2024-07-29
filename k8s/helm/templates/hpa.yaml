@@ -1,15 +1,13 @@
 {{- if .Values.autoscaling.enabled }}
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "qiskit-monitoring.fullname" . }}
-  labels:
-    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+  name: {{ include "qiskit-monitoring.fullname" . }}-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "qiskit-monitoring.fullname" . }}
+    name: {{ include "qiskit-monitoring.fullname" . }}-cilium
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
@@ -19,10 +17,4 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
 {{- end }}
