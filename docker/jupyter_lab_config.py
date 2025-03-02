@@ -1,29 +1,31 @@
 c = get_config()
 
-# Set the base URL
 c.ServerApp.base_url = '/'
-
-# Set the IP address
 c.ServerApp.ip = '0.0.0.0'
-
-# Do not open a browser
 c.ServerApp.open_browser = False
-
-# Set the port
 c.ServerApp.port = 8888
-
-# Allow root user
 c.ServerApp.allow_root = True
-
-# Set a password instead of using a token
 c.ServerApp.password = 'argon2:$argon2id$v=19$m=10240,t=10,p=8$xMPnfpR4mpA6V7zN3jIBSA$92WT4iExe4Sxj7PZtWLsXQxcx5eZOuVFgT3WZdVmmFY'
-
-# Set the notebook directory
 c.ServerApp.root_dir = '/app/notebooks'
-
-# Use SSL certificate and key
-c.ServerApp.certfile = '/home/appuser/ssl_cert/localhost.pem'
-c.ServerApp.keyfile = '/home/appuser/ssl_cert/localhost.key'
-
-# Enable HTTPS
+c.ServerApp.certfile = '/etc/ssl/tls.crt'
+c.ServerApp.keyfile = '/etc/ssl/tls.key'
 c.ServerApp.use_https = True
+
+# Additional security settings
+c.ServerApp.disable_check_xsrf = False
+c.ServerApp.csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'"
+c.ServerApp.tornado_settings = {
+    'headers': {
+        'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self';",
+        'X-XSS-Protection': '1; mode=block',
+        'X-Content-Type-Options': 'nosniff',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+        'Server': ''
+    },
+    'cookie_options': {'secure': True, 'httponly': True}
+}
+c.ServerApp.session_idle_timeout = 600
+from jupyter_server.auth import passwd_check_rate_limiter
+c.ServerApp.password_check_rate_limiter = passwd_check_rate_limiter(limit=5, period=3600)
+c.ServerApp.allow_origin = 'http://localhost:8888'
+c.ServerApp.tornado_settings['headers']['Server'] = ''

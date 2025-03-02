@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  ports:
+    - protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: {{ .Values.prometheus.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+  ports:
+    - protocol: TCP
+      port: {{ .Values.qiskit.service.port }}
+      targetPort: {{ .Values.qiskit.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-loki
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-loki
+  ports:
+    - protocol: TCP
+      port: {{ .Values.loki.service.port }}
+      targetPort: {{ .Values.loki.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  ports:
+    - protocol: TCP
+      port: {{ .Values.cilium.service.port }}
+      targetPort: {{ .Values.cilium.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+  ports:
+    - protocol: TCP
+      port: {{ .Values.alertmanager.service.port }}
+      targetPort: {{ .Values.alertmanager.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+  ports:
+    - protocol: TCP
+      port: {{ .Values.jaeger.service.port }}
+      targetPort: {{ .Values.jaeger.service.port }}

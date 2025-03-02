@@ -1,0 +1,383 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: {{ .Values.prometheus.image }}
+          ports:
+            - containerPort: {{ .Values.prometheus.service.port }}
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: {{ .Values.cilium.kvstore.configMap }}
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-prometheus
+  ports:
+    - protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: {{ .Values.prometheus.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-cilium
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-cilium
+    spec:
+      containers:
+        - name: cilium
+          image: {{ .Values.cilium.image }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cilium-agent \
+              --kvstore=etcd \
+              --kvstore-opt=etcd.config=/var/lib/cilium/etcd-config.yaml \
+              --enable-ipv4=true \
+              --enable-ipv6=false \
+              --tunnel=vxlan \
+              --cluster-name=k8s-cluster \
+              --identity-allocation-mode=kvstore \
+              --native-routing-cidr=10.0.0.0/8 \
+              --enable-host-reachable-services=true \
+              --auto-direct-node-routes=true
+          ports:
+            - containerPort: {{ .Values.cilium.service.port }}
+          volumeMounts:
+            - name: cilium-config
+              mountPath: /var/lib/cilium
+            - name: etcd-certs
+              mountPath: /etc/ssl/etcd
+      volumes:
+        - name: cilium-config
+          configMap:
+            name: combined-config
+            items:
+              - key: cilium.conf
+                path: cilium.conf
+              - key: etcd-config.yaml
+                path: etcd-config.yaml
+        - name: etcd-certs
+          secret:
+            secretName: etcd-certs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+    spec:
+      containers:
+        - name: qiskit
+          image: {{ .Values.qiskit.image }}
+          ports:
+            - containerPort: {{ .Values.qiskit.service.port }}
+          env:
+            - name: JUPYTER_ENABLE_LAB
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-qiskit
+  ports:
+    - protocol: TCP
+      port: {{ .Values.qiskit.service.port }}
+      targetPort: {{ .Values.qiskit.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: {{ .Values.alertmanager.image }}
+          ports:
+            - containerPort: {{ .Values.alertmanager.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-alertmanager
+  ports:
+    - protocol: TCP
+      port: {{ .Values.alertmanager.service.port }}
+      targetPort: {{ .Values.alertmanager.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-loki
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-loki
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-loki
+    spec:
+      containers:
+        - name: loki
+          image: {{ .Values.loki.image }}
+          ports:
+            - containerPort: {{ .Values.loki.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-loki
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-loki
+  ports:
+    - protocol: TCP
+      port: {{ .Values.loki.service.port }}
+      targetPort: {{ .Values.loki.service.port }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+  template:
+    metadata:
+      labels:
+        app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+    spec:
+      containers:
+        - name: jaeger
+          image: {{ .Values.jaeger.image }}
+          ports:
+            - containerPort: {{ .Values.jaeger.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+spec:
+  selector:
+    app: {{ include "qiskit-monitoring.fullname" . }}-jaeger
+  ports:
+    - protocol: TCP
+      port: {{ .Values.jaeger.service.port }}
+      targetPort: {{ .Values.jaeger.service.port }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "qiskit-monitoring.fullname" . }}-trivy-scan
+  labels:
+    {{- include "qiskit-monitoring.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.trivy.schedule }}"  # Use the schedule defined in values.yaml
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: trivy
+              image: "{{ .Values.trivy.image }}"  # Use the Trivy image defined in values.yaml
+              args:
+                [
+                  "image",
+                  "--format",
+                  "table",
+                  "--output",
+                  "{{ .Values.trivy.reportDirectory }}/trivy-report.txt",  # Save the report to the specified directory
+                  "{{ .Values.trivy.targetImage }}"  # Scan the target image defined in values.yaml
+                ]
+              volumeMounts:
+                - name: report-volume
+                  mountPath: "{{ .Values.trivy.reportDirectory }}"  # Mount the report directory
+          restartPolicy: OnFailure
+          volumes:
+            - name: report-volume
+              emptyDir: {}
+---
+{{- if and .Values.preflight.enabled .Values.preflight.validateCNPs }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cilium-pre-flight-check
+  namespace: {{ .Release.Namespace }}
+  {{- with .Values.preflight.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/part-of: cilium
+    app.kubernetes.io/name: cilium-pre-flight-check
+spec:
+  selector:
+    matchLabels:
+      k8s-app: cilium-pre-flight-check-deployment
+      kubernetes.io/cluster-service: "true"
+  template:
+    metadata:
+      {{- with .Values.preflight.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/part-of: cilium
+        k8s-app: cilium-pre-flight-check-deployment
+        kubernetes.io/cluster-service: "true"
+        app.kubernetes.io/name: cilium-pre-flight-check
+        {{- with .Values.preflight.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: cnp-validator
+          image: {{ .Values.preflight.image }}
+          imagePullPolicy: {{ .Values.preflight.imagePullPolicy }}
+          command: ["/bin/sh"]
+          args:
+          - -ec
+          - |
+            cilium-dbg preflight validate-cnp;
+            touch /tmp/ready-validate-cnp;
+            sleep 1h;
+          readinessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/ready-validate-cnp
+            initialDelaySeconds: {{ .Values.preflight.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.preflight.readinessProbe.periodSeconds }}
+          volumeMounts:
+          - name: cilium-config
+            mountPath: /etc/cilium/cilium.conf
+            subPath: cilium.conf
+          - name: etcd-certs
+            mountPath: /etc/ssl/etcd
+          {{- with .Values.preflight.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          env:
+          {{- if .Values.k8sServiceHost }}
+          - name: KUBERNETES_SERVICE_HOST
+            value: {{ .Values.k8sServiceHost }}
+          - name: KUBERNETES_SERVICE_PORT
+            value: {{ .Values.k8sServicePort }}
+          {{- end }}
+          {{- with .Values.preflight.extraEnv }}
+          {{- toYaml . | trim | nindent 10 }}
+          {{- end }}
+          {{- with .Values.preflight.resources }}
+          resources:
+            {{- toYaml . | trim | nindent 12 }}
+          {{- end }}
+          terminationMessagePolicy: FallbackToLogsOnError
+      volumes:
+        - name: cilium-config
+          configMap:
+            name: combined-config
+            items:
+              - key: cilium.conf
+                path: cilium.conf
+              - key: etcd-config.yaml
+                path: etcd-config.yaml
+        - name: etcd-certs
+          secret:
+            secretName: etcd-certs
+        {{- with .Values.preflight.extraVolumes }}
+        {{- toYaml . | trim | nindent 6 }}
+        {{- end }}
+      hostNetwork: true
+      restartPolicy: Always
+      priorityClassName: {{ default "" .Values.preflight.priorityClassName }}
+      serviceAccountName: {{ default "default" .Values.serviceAccounts.preflight.name | quote }}
+      automountServiceAccountToken: {{ default true .Values.serviceAccounts.preflight.automount }}
+      terminationGracePeriodSeconds: {{ .Values.preflight.terminationGracePeriodSeconds }}
+      {{- with .Values.preflight.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.preflight.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.preflight.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

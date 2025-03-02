@@ -9,6 +9,6 @@ spec:
     spec:
       containers:
       - name: qiskit-on-docker
-        image: elijun831/qiskit-on-docker:1.0.0
+        image: elijun831/qiskit-on-docker:jupyterlab
         command: ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root", "--certfile=/home/appuser/ssl_cert/localhost.pem", "--keyfile=/home/appuser/ssl_cert/localhost.key", "--notebook-dir=/app/notebooks"]
       restartPolicy: Never

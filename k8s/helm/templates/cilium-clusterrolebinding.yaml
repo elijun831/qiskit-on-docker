@@ -1,0 +1,41 @@
+{{- if and .Values.preflight.enabled .Values.serviceAccounts.preflight.create .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cilium-pre-flight
+  {{- with .Values.preflight.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/part-of: cilium
+    {{- include "cilium.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cilium-pre-flight
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.serviceAccounts.preflight.name | quote }} 
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+
+{{- if and .Values.agent.enabled .Values.serviceAccounts.cilium.create .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cilium-agent
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cilium-admin
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.serviceAccounts.cilium.name | quote }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -1,0 +1,91 @@
+# Horizontal Pod Autoscaler (HPA)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jupyterlab-config
+data:
+  jupyter_lab_config.py: |
+    c = get_config()
+    c.ServerApp.ip = '0.0.0.0'
+    c.ServerApp.port = 8888
+    c.ServerApp.open_browser = False
+    c.ServerApp.allow_root = True
+    c.ServerApp.allow_origin = '*'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab
+  labels:
+    app: jupyterlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyterlab
+  template:
+    metadata:
+      labels:
+        app: jupyterlab
+    spec:
+      containers:
+      - name: jupyterlab
+        image: elijun831/qiskit-on-docker:jupyterlab
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: config
+          mountPath: /home/appuser/.jupyter/jupyter_lab_config.py
+          subPath: jupyter_lab_config.py
+      volumes:
+      - name: config
+        configMap:
+          name: jupyterlab-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab
+spec:
+  selector:
+    app: jupyterlab
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8888
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jupyterlab-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jupyterlab
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 50
